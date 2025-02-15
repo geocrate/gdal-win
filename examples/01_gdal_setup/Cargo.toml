@@ -1,5 +1,5 @@
 [package]
-name = "jkl1"
+name = "gdal-setup"
 version = "0.1.0"
 edition = "2021"
 

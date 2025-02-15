@@ -58,7 +58,7 @@ pub mod version;
 #[path = "../gdal/src/vsi.rs"]
 pub mod vsi;
 
-pub mod build;
+pub mod bin;
 
 #[cfg(test)]
 fn assert_almost_eq(a: f64, b: f64) {

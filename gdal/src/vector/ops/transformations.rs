@@ -1,4 +1,4 @@
-use gdal_sys::OGRErr;
+use gdal_bind::OGRErr;
 
 use crate::cpl::CslStringList;
 use crate::errors::{GdalError, Result};
@@ -15,7 +15,7 @@ impl Geometry {
     ///
     /// See: [`OGR_G_Transform`](https://gdal.org/api/vector_c_api.html#_CPPv415OGR_G_Transform12OGRGeometryH28OGRCoordinateTransformationH)
     pub fn transform_inplace(&mut self, htransform: &CoordTransform) -> Result<()> {
-        let rv = unsafe { gdal_sys::OGR_G_Transform(self.c_geometry(), htransform.to_c_hct()) };
+        let rv = unsafe { gdal_bind::OGR_G_Transform(self.c_geometry(), htransform.to_c_hct()) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -29,8 +29,8 @@ impl Geometry {
     ///
     /// See: [`OGR_G_Transform`](https://gdal.org/api/vector_c_api.html#_CPPv415OGR_G_Transform12OGRGeometryH28OGRCoordinateTransformationH)
     pub fn transform(&self, htransform: &CoordTransform) -> Result<Geometry> {
-        let new_c_geom = unsafe { gdal_sys::OGR_G_Clone(self.c_geometry()) };
-        let rv = unsafe { gdal_sys::OGR_G_Transform(new_c_geom, htransform.to_c_hct()) };
+        let new_c_geom = unsafe { gdal_bind::OGR_G_Clone(self.c_geometry()) };
+        let rv = unsafe { gdal_bind::OGR_G_Transform(new_c_geom, htransform.to_c_hct()) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -44,7 +44,7 @@ impl Geometry {
     ///
     /// See: [`OGR_G_TransformTo`](https://gdal.org/api/vector_c_api.html#_CPPv417OGR_G_TransformTo12OGRGeometryH20OGRSpatialReferenceH)
     pub fn transform_to_inplace(&mut self, spatial_ref: &SpatialRef) -> Result<()> {
-        let rv = unsafe { gdal_sys::OGR_G_TransformTo(self.c_geometry(), spatial_ref.to_c_hsrs()) };
+        let rv = unsafe { gdal_bind::OGR_G_TransformTo(self.c_geometry(), spatial_ref.to_c_hsrs()) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -58,8 +58,8 @@ impl Geometry {
     ///
     /// See: [`OGR_G_TransformTo`](https://gdal.org/api/vector_c_api.html#_CPPv417OGR_G_TransformTo12OGRGeometryH20OGRSpatialReferenceH)
     pub fn transform_to(&self, spatial_ref: &SpatialRef) -> Result<Geometry> {
-        let new_c_geom = unsafe { gdal_sys::OGR_G_Clone(self.c_geometry()) };
-        let rv = unsafe { gdal_sys::OGR_G_TransformTo(new_c_geom, spatial_ref.to_c_hsrs()) };
+        let new_c_geom = unsafe { gdal_bind::OGR_G_Clone(self.c_geometry()) };
+        let rv = unsafe { gdal_bind::OGR_G_TransformTo(new_c_geom, spatial_ref.to_c_hsrs()) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -73,7 +73,7 @@ impl Geometry {
     ///
     /// See: [`OGR_G_ConvexHull`](https://gdal.org/api/vector_c_api.html#_CPPv416OGR_G_ConvexHull12OGRGeometryH)
     pub fn convex_hull(&self) -> Result<Geometry> {
-        let c_geom = unsafe { gdal_sys::OGR_G_ConvexHull(self.c_geometry()) };
+        let c_geom = unsafe { gdal_bind::OGR_G_ConvexHull(self.c_geometry()) };
         if c_geom.is_null() {
             return Err(_last_null_pointer_err("OGR_G_ConvexHull"));
         };
@@ -96,7 +96,7 @@ impl Geometry {
     /// [has_geos]: crate::version::VersionInfo::has_geos
     pub fn delaunay_triangulation(&self, tolerance: Option<f64>) -> Result<Self> {
         let c_geom = unsafe {
-            gdal_sys::OGR_G_DelaunayTriangulation(self.c_geometry(), tolerance.unwrap_or(0.0), 0)
+            gdal_bind::OGR_G_DelaunayTriangulation(self.c_geometry(), tolerance.unwrap_or(0.0), 0)
         };
         if c_geom.is_null() {
             return Err(_last_null_pointer_err("OGR_G_DelaunayTriangulation"));
@@ -112,7 +112,7 @@ impl Geometry {
     ///
     /// See: [`OGR_G_Simplify`](https://gdal.org/api/vector_c_api.html#_CPPv414OGR_G_Simplify12OGRGeometryHd)
     pub fn simplify(&self, tolerance: f64) -> Result<Self> {
-        let c_geom = unsafe { gdal_sys::OGR_G_Simplify(self.c_geometry(), tolerance) };
+        let c_geom = unsafe { gdal_bind::OGR_G_Simplify(self.c_geometry(), tolerance) };
         if c_geom.is_null() {
             return Err(_last_null_pointer_err("OGR_G_Simplify"));
         };
@@ -128,7 +128,7 @@ impl Geometry {
     /// See: [`OGR_G_SimplifyPreserveTopology`](https://gdal.org/api/vector_c_api.html#_CPPv430OGR_G_SimplifyPreserveTopology12OGRGeometryHd)
     pub fn simplify_preserve_topology(&self, tolerance: f64) -> Result<Self> {
         let c_geom =
-            unsafe { gdal_sys::OGR_G_SimplifyPreserveTopology(self.c_geometry(), tolerance) };
+            unsafe { gdal_bind::OGR_G_SimplifyPreserveTopology(self.c_geometry(), tolerance) };
         if c_geom.is_null() {
             return Err(_last_null_pointer_err("OGR_G_SimplifyPreserveTopology"));
         };
@@ -147,7 +147,7 @@ impl Geometry {
     /// See: [`OGR_G_Buffer`](https://gdal.org/api/vector_c_api.html#_CPPv412OGR_G_Buffer12OGRGeometryHdi)
     pub fn buffer(&self, distance: f64, n_quad_segs: u32) -> Result<Self> {
         let c_geom =
-            unsafe { gdal_sys::OGR_G_Buffer(self.c_geometry(), distance, n_quad_segs as i32) };
+            unsafe { gdal_bind::OGR_G_Buffer(self.c_geometry(), distance, n_quad_segs as i32) };
         if c_geom.is_null() {
             return Err(_last_null_pointer_err("OGR_G_Buffer"));
         };
@@ -186,7 +186,7 @@ impl Geometry {
     /// # }
     /// ```
     pub fn make_valid(&self, opts: &CslStringList) -> Result<Geometry> {
-        let c_geom = unsafe { gdal_sys::OGR_G_MakeValidEx(self.c_geometry(), opts.as_ptr()) };
+        let c_geom = unsafe { gdal_bind::OGR_G_MakeValidEx(self.c_geometry(), opts.as_ptr()) };
 
         if c_geom.is_null() {
             Err(_last_null_pointer_err("OGR_G_MakeValid"))
@@ -248,7 +248,7 @@ mod tests {
         let buffered = geom.buffer(10.0, 2).unwrap();
         assert_eq!(
             buffered.geometry_type(),
-            ::gdal_sys::OGRwkbGeometryType::wkbPolygon
+            ::gdal_bind::OGRwkbGeometryType::wkbPolygon
         );
         assert!(buffered.area() > 10.0);
     }

@@ -1,6 +1,6 @@
 use std::convert::{TryFrom, TryInto};
 
-use gdal_sys::OGRwkbGeometryType;
+use gdal_bind::OGRwkbGeometryType;
 
 use crate::errors::GdalError;
 use crate::vector::Geometry;
@@ -28,7 +28,7 @@ impl TryFrom<&Geometry> for geo_types::Geometry<f64> {
             }
             OGRwkbGeometryType::wkbMultiPoint => {
                 let point_count =
-                    unsafe { gdal_sys::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
+                    unsafe { gdal_bind::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
                 let coords = (0..point_count)
                     .map(|n| {
                         unsafe { geo.get_unowned_geometry(n) }
@@ -56,7 +56,7 @@ impl TryFrom<&Geometry> for geo_types::Geometry<f64> {
             }
             OGRwkbGeometryType::wkbMultiLineString => {
                 let string_count =
-                    unsafe { gdal_sys::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
+                    unsafe { gdal_bind::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
                 let strings = (0..string_count)
                     .map(|n| {
                         unsafe { geo.get_unowned_geometry(n) }
@@ -73,7 +73,7 @@ impl TryFrom<&Geometry> for geo_types::Geometry<f64> {
             }
             OGRwkbGeometryType::wkbPolygon => {
                 let ring_count =
-                    unsafe { gdal_sys::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
+                    unsafe { gdal_bind::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
                 let outer = ring(0)?;
                 let holes = (1..ring_count).map(ring).collect::<Result<Vec<_>, _>>()?;
                 Ok(geo_types::Geometry::Polygon(geo_types::Polygon::new(
@@ -82,7 +82,7 @@ impl TryFrom<&Geometry> for geo_types::Geometry<f64> {
             }
             OGRwkbGeometryType::wkbMultiPolygon => {
                 let string_count =
-                    unsafe { gdal_sys::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
+                    unsafe { gdal_bind::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
                 let strings = (0..string_count)
                     .map(|n| {
                         unsafe { geo.get_unowned_geometry(n) }
@@ -99,7 +99,7 @@ impl TryFrom<&Geometry> for geo_types::Geometry<f64> {
             }
             OGRwkbGeometryType::wkbGeometryCollection => {
                 let item_count =
-                    unsafe { gdal_sys::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
+                    unsafe { gdal_bind::OGR_G_GetGeometryCount(geo.c_geometry()) } as usize;
                 let geometry_list = (0..item_count)
                     .map(|n| unsafe { geo.get_unowned_geometry(n) }.try_into())
                     .collect::<Result<Vec<_>, _>>()?;

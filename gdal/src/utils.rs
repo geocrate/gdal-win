@@ -1,7 +1,7 @@
 use std::ffi::{c_char, CStr, CString};
 use std::path::{Path, PathBuf};
 
-use gdal_sys::CPLErr;
+use gdal_bind::CPLErr;
 
 use crate::errors::*;
 
@@ -63,9 +63,9 @@ where
 
 // TODO: inspect if this is sane...
 pub fn _last_cpl_err(cpl_err_class: CPLErr::Type) -> GdalError {
-    let last_err_no = unsafe { gdal_sys::CPLGetLastErrorNo() };
-    let last_err_msg = _string(unsafe { gdal_sys::CPLGetLastErrorMsg() });
-    unsafe { gdal_sys::CPLErrorReset() };
+    let last_err_no = unsafe { gdal_bind::CPLGetLastErrorNo() };
+    let last_err_msg = _string(unsafe { gdal_bind::CPLGetLastErrorMsg() });
+    unsafe { gdal_bind::CPLErrorReset() };
     GdalError::CplError {
         class: cpl_err_class,
         number: last_err_no,
@@ -74,8 +74,8 @@ pub fn _last_cpl_err(cpl_err_class: CPLErr::Type) -> GdalError {
 }
 
 pub fn _last_null_pointer_err(method_name: &'static str) -> GdalError {
-    let last_err_msg = _string(unsafe { gdal_sys::CPLGetLastErrorMsg() });
-    unsafe { gdal_sys::CPLErrorReset() };
+    let last_err_msg = _string(unsafe { gdal_bind::CPLGetLastErrorMsg() });
+    unsafe { gdal_bind::CPLErrorReset() };
     GdalError::NullPointer {
         method_name,
         msg: last_err_msg.unwrap_or_default(),

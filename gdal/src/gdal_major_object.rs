@@ -1,4 +1,4 @@
-use gdal_sys::GDALMajorObjectH;
+use gdal_bind::GDALMajorObjectH;
 
 /// Common trait for GDAL data types backed by [`GDALMajorObjectH`].
 pub trait MajorObject {

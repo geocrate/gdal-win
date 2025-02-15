@@ -4,7 +4,7 @@ use std::ffi::c_int;
 use std::num::TryFromIntError;
 use thiserror::Error;
 
-use gdal_sys::{CPLErr, OGRErr, OGRFieldType, OGRwkbGeometryType};
+use gdal_bind::{CPLErr, OGRErr, OGRFieldType, OGRwkbGeometryType};
 
 pub type Result<T> = std::result::Result<T, GdalError>;
 

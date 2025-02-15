@@ -1,7 +1,7 @@
 use crate::errors::*;
 use crate::gdal_major_object::MajorObject;
 use crate::utils::{_last_cpl_err, _last_null_pointer_err, _string, _string_array};
-use gdal_sys::CPLErr;
+use gdal_bind::CPLErr;
 use std::ffi::CString;
 
 /// General-Purpose Metadata API
@@ -58,7 +58,7 @@ pub trait Metadata: MajorObject {
     /// # }
     /// ```
     fn description(&self) -> Result<String> {
-        let c_res = unsafe { gdal_sys::GDALGetDescription(self.gdal_object_ptr()) };
+        let c_res = unsafe { gdal_bind::GDALGetDescription(self.gdal_object_ptr()) };
         _string(c_res).ok_or_else(|| _last_null_pointer_err("GDALGetDescription"))
     }
 
@@ -82,12 +82,12 @@ pub trait Metadata: MajorObject {
     /// ```
     fn metadata_domains(&self) -> Vec<String> {
         let mut domains = Vec::new();
-        let c_res = unsafe { gdal_sys::GDALGetMetadataDomainList(self.gdal_object_ptr()) };
+        let c_res = unsafe { gdal_bind::GDALGetMetadataDomainList(self.gdal_object_ptr()) };
 
         if !c_res.is_null() {
             domains.append(&mut _string_array(c_res));
         }
-        unsafe { gdal_sys::CSLDestroy(c_res) };
+        unsafe { gdal_bind::CSLDestroy(c_res) };
 
         domains
     }
@@ -113,7 +113,7 @@ pub trait Metadata: MajorObject {
         let mut metadata = Vec::new();
         if let Ok(c_domain) = CString::new(domain.to_owned()) {
             let c_res =
-                unsafe { gdal_sys::GDALGetMetadata(self.gdal_object_ptr(), c_domain.as_ptr()) };
+                unsafe { gdal_bind::GDALGetMetadata(self.gdal_object_ptr(), c_domain.as_ptr()) };
 
             if c_res.is_null() {
                 return None;
@@ -141,7 +141,7 @@ pub trait Metadata: MajorObject {
         if let Ok(c_key) = CString::new(key.to_owned()) {
             if let Ok(c_domain) = CString::new(domain.to_owned()) {
                 let c_res = unsafe {
-                    gdal_sys::GDALGetMetadataItem(
+                    gdal_bind::GDALGetMetadataItem(
                         self.gdal_object_ptr(),
                         c_key.as_ptr(),
                         c_domain.as_ptr(),
@@ -175,7 +175,7 @@ pub trait Metadata: MajorObject {
         let c_value = CString::new(value)?;
 
         let c_res = unsafe {
-            gdal_sys::GDALSetMetadataItem(
+            gdal_bind::GDALSetMetadataItem(
                 self.gdal_object_ptr(),
                 c_key.as_ptr(),
                 c_value.as_ptr(),
@@ -194,7 +194,7 @@ pub trait Metadata: MajorObject {
     /// (if supported) or `""`.
     fn set_description(&mut self, description: &str) -> Result<()> {
         let c_description = CString::new(description.to_owned())?;
-        unsafe { gdal_sys::GDALSetDescription(self.gdal_object_ptr(), c_description.as_ptr()) };
+        unsafe { gdal_bind::GDALSetDescription(self.gdal_object_ptr(), c_description.as_ptr()) };
         Ok(())
     }
 

@@ -5,7 +5,7 @@ use std::{
     ptr::{null, null_mut},
 };
 
-use gdal_sys::GDALBuildVRTOptions;
+use gdal_bind::GDALBuildVRTOptions;
 
 use crate::{
     errors::*,
@@ -42,7 +42,7 @@ impl BuildVRTOptions {
 
         unsafe {
             Ok(Self {
-                c_options: gdal_sys::GDALBuildVRTOptionsNew(c_args.as_mut_ptr(), null_mut()),
+                c_options: gdal_bind::GDALBuildVRTOptionsNew(c_args.as_mut_ptr(), null_mut()),
             })
         }
     }
@@ -59,7 +59,7 @@ impl BuildVRTOptions {
 impl Drop for BuildVRTOptions {
     fn drop(&mut self) {
         unsafe {
-            gdal_sys::GDALBuildVRTOptionsFree(self.c_options);
+            gdal_bind::GDALBuildVRTOptionsFree(self.c_options);
         }
     }
 }
@@ -101,10 +101,10 @@ fn _build_vrt(
 
     let dataset_out = unsafe {
         // Get raw handles to the datasets
-        let mut datasets_raw: Vec<gdal_sys::GDALDatasetH> =
+        let mut datasets_raw: Vec<gdal_bind::GDALDatasetH> =
             datasets.iter().map(|x| x.c_dataset()).collect();
 
-        gdal_sys::GDALBuildVRT(
+        gdal_bind::GDALBuildVRT(
             c_dest,
             datasets_raw.len() as c_int,
             datasets_raw.as_mut_ptr(),

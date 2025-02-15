@@ -21,7 +21,7 @@ impl TpiOptions {
     common_dem_options!();
 
     /// Render options into [`CslStringList`] values, as compatible with
-    /// [`gdal_sys::GDALDEMProcessing`].
+    /// [`gdal_bind::GDALDEMProcessing`].
     pub fn to_options_list(&self) -> errors::Result<CslStringList> {
         let mut opts = CslStringList::new();
         self.store_common_options_to(&mut opts)?;

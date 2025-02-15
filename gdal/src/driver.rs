@@ -2,7 +2,7 @@ use std::ffi::{c_int, CString};
 use std::path::Path;
 use std::sync::Once;
 
-use gdal_sys::{CPLErr, GDALDriverH, GDALMajorObjectH};
+use gdal_bind::{CPLErr, GDALDriverH, GDALMajorObjectH};
 
 use crate::dataset::Dataset;
 use crate::gdal_major_object::MajorObject;
@@ -65,7 +65,7 @@ impl Driver {
     ///
     /// See also: [`long_name`](Self::long_name).
     pub fn short_name(&self) -> String {
-        let rv = unsafe { gdal_sys::GDALGetDriverShortName(self.c_driver) };
+        let rv = unsafe { gdal_bind::GDALGetDriverShortName(self.c_driver) };
         _string(rv).unwrap_or_default()
     }
 
@@ -75,7 +75,7 @@ impl Driver {
     ///
     /// See also: [`short_name`](Self::short_name`).
     pub fn long_name(&self) -> String {
-        let rv = unsafe { gdal_sys::GDALGetDriverLongName(self.c_driver) };
+        let rv = unsafe { gdal_bind::GDALGetDriverLongName(self.c_driver) };
         _string(rv).unwrap_or_default()
     }
 
@@ -200,7 +200,7 @@ impl Driver {
 
         let c_filename = _path_to_c_string(filename)?;
         let c_dataset = unsafe {
-            gdal_sys::GDALCreate(
+            gdal_bind::GDALCreate(
                 self.c_driver,
                 c_filename.as_ptr(),
                 size_x,
@@ -244,7 +244,7 @@ impl Driver {
     fn _delete(&self, filename: &Path) -> Result<()> {
         let c_filename = _path_to_c_string(filename)?;
 
-        let rv = unsafe { gdal_sys::GDALDeleteDataset(self.c_driver, c_filename.as_ptr()) };
+        let rv = unsafe { gdal_bind::GDALDeleteDataset(self.c_driver, c_filename.as_ptr()) };
 
         if rv != CPLErr::CE_None {
             return Err(_last_cpl_err(rv));
@@ -272,7 +272,7 @@ impl Driver {
         let c_new_filename = _path_to_c_string(new_filename)?;
 
         let rv = unsafe {
-            gdal_sys::GDALRenameDataset(
+            gdal_bind::GDALRenameDataset(
                 self.c_driver,
                 c_new_filename.as_ptr(),
                 c_old_filename.as_ptr(),
@@ -329,7 +329,7 @@ impl DriverManager {
     /// ```
     pub fn count() -> usize {
         _register_drivers();
-        let count = unsafe { gdal_sys::GDALGetDriverCount() };
+        let count = unsafe { gdal_bind::GDALGetDriverCount() };
         count
             .try_into()
             .expect("The returned count should be zero or positive")
@@ -356,7 +356,7 @@ impl DriverManager {
     /// ```
     pub fn get_driver(index: usize) -> Result<Driver> {
         _register_drivers();
-        let c_driver = unsafe { gdal_sys::GDALGetDriver(index.try_into().unwrap()) };
+        let c_driver = unsafe { gdal_bind::GDALGetDriver(index.try_into().unwrap()) };
         if c_driver.is_null() {
             // `GDALGetDriver` just returns `null` and sets no error message
             return Err(GdalError::NullPointer {
@@ -387,7 +387,7 @@ impl DriverManager {
     pub fn get_driver_by_name(name: &str) -> Result<Driver> {
         _register_drivers();
         let c_name = CString::new(name)?;
-        let c_driver = unsafe { gdal_sys::GDALGetDriverByName(c_name.as_ptr()) };
+        let c_driver = unsafe { gdal_bind::GDALGetDriverByName(c_name.as_ptr()) };
         if c_driver.is_null() {
             // `GDALGetDriverByName` just returns `null` and sets no error message
             return Err(GdalError::NullPointer {
@@ -533,7 +533,7 @@ impl DriverManager {
     ///
     /// Wraps [`GDALRegisterDriver()`](https://gdal.org/api/raster_c_api.html#_CPPv418GDALRegisterDriver11GDALDriverH)
     pub fn register_driver(driver: &Driver) -> usize {
-        let index = unsafe { gdal_sys::GDALRegisterDriver(driver.c_driver) };
+        let index = unsafe { gdal_bind::GDALRegisterDriver(driver.c_driver) };
         index
             .try_into()
             .expect("The returned index should be zero or positive")
@@ -544,7 +544,7 @@ impl DriverManager {
     /// Wraps [`GDALDeregisterDriver()`](https://gdal.org/api/raster_c_api.html#_CPPv420GDALDeregisterDriver11GDALDriverH)
     pub fn deregister_driver(driver: &Driver) {
         unsafe {
-            gdal_sys::GDALDeregisterDriver(driver.c_driver);
+            gdal_bind::GDALDeregisterDriver(driver.c_driver);
         }
     }
 
@@ -553,7 +553,7 @@ impl DriverManager {
     /// Wraps [`GDALAllRegister()`](https://gdal.org/api/raster_c_api.html#gdal_8h_1a9d40bc998bd6ed07ccde96028e85ae26)
     pub fn register_all() {
         unsafe {
-            gdal_sys::GDALAllRegister();
+            gdal_bind::GDALAllRegister();
         }
     }
 
@@ -567,7 +567,7 @@ impl DriverManager {
     /// Wraps [`GDALDestroyDriverManager()`](https://gdal.org/api/raster_c_api.html#_CPPv417GDALDestroyDriver11GDALDriverH)
     pub fn destroy() {
         unsafe {
-            gdal_sys::GDALDestroyDriverManager();
+            gdal_bind::GDALDestroyDriverManager();
         }
     }
 

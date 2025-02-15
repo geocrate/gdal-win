@@ -3,7 +3,7 @@ use std::fmt::{Debug, Display, Formatter};
 use std::marker::PhantomData;
 use std::str::FromStr;
 
-use gdal_sys::{
+use gdal_bind::{
     self, CPLErr, GDALColorEntry, GDALColorInterp, GDALColorTableH, GDALComputeRasterMinMax,
     GDALCreateColorRamp, GDALCreateColorTable, GDALDestroyColorTable, GDALGetDefaultHistogramEx,
     GDALGetPaletteInterpretation, GDALGetRasterHistogramEx, GDALGetRasterStatistics,
@@ -34,7 +34,7 @@ impl Dataset {
         let band_index = c_int::try_from(band_index)?;
 
         unsafe {
-            let c_band = gdal_sys::GDALGetRasterBand(self.c_dataset(), band_index);
+            let c_band = gdal_bind::GDALGetRasterBand(self.c_dataset(), band_index);
             if c_band.is_null() {
                 return Err(_last_null_pointer_err("GDALGetRasterBand"));
             }
@@ -76,7 +76,7 @@ impl Dataset {
     ) -> Result<()> {
         let c_resampling = CString::new(resampling)?;
         let rv = unsafe {
-            gdal_sys::GDALBuildOverviews(
+            gdal_bind::GDALBuildOverviews(
                 self.c_dataset(),
                 c_resampling.as_ptr(),
                 overviews.len() as i32,
@@ -95,13 +95,13 @@ impl Dataset {
 
     /// Fetch the number of raster bands on this dataset.
     pub fn raster_count(&self) -> usize {
-        (unsafe { gdal_sys::GDALGetRasterCount(self.c_dataset()) }) as usize
+        (unsafe { gdal_bind::GDALGetRasterCount(self.c_dataset()) }) as usize
     }
 
     /// Returns the raster dimensions: (width, height).
     pub fn raster_size(&self) -> (usize, usize) {
-        let size_x = unsafe { gdal_sys::GDALGetRasterXSize(self.c_dataset()) } as usize;
-        let size_y = unsafe { gdal_sys::GDALGetRasterYSize(self.c_dataset()) } as usize;
+        let size_x = unsafe { gdal_bind::GDALGetRasterXSize(self.c_dataset()) } as usize;
+        let size_y = unsafe { gdal_bind::GDALGetRasterYSize(self.c_dataset()) } as usize;
         (size_x, size_y)
     }
 }
@@ -230,13 +230,13 @@ impl GdalMaskFlags {
 
 /// Extra options used to read a raster.
 ///
-/// For documentation, see `gdal_sys::GDALRasterIOExtraArg`.
+/// For documentation, see `gdal_bind::GDALRasterIOExtraArg`.
 #[derive(Debug)]
 #[allow(clippy::upper_case_acronyms)]
 pub struct RasterIOExtraArg {
     pub n_version: usize,
     pub e_resample_alg: ResampleAlg,
-    pub pfn_progress: gdal_sys::GDALProgressFunc,
+    pub pfn_progress: gdal_bind::GDALProgressFunc,
     p_progress_data: *mut c_void,
     pub b_floating_point_window_validity: usize,
     pub df_x_off: f64,
@@ -325,7 +325,7 @@ impl<'a> RasterBand<'a> {
         let mut size_x = 0;
         let mut size_y = 0;
 
-        unsafe { gdal_sys::GDALGetBlockSize(self.c_rasterband, &mut size_x, &mut size_y) };
+        unsafe { gdal_bind::GDALGetBlockSize(self.c_rasterband, &mut size_x, &mut size_y) };
         (size_x as usize, size_y as usize)
     }
 
@@ -334,7 +334,7 @@ impl<'a> RasterBand<'a> {
     pub fn x_size(&self) -> usize {
         let out;
         unsafe {
-            out = gdal_sys::GDALGetRasterBandXSize(self.c_rasterband);
+            out = gdal_bind::GDALGetRasterBandXSize(self.c_rasterband);
         }
         out as usize
     }
@@ -343,7 +343,7 @@ impl<'a> RasterBand<'a> {
     /// *Note*: This may not be the same as number of rows of the owning [`Dataset`], due to scale.
     pub fn y_size(&self) -> usize {
         let out;
-        unsafe { out = gdal_sys::GDALGetRasterBandYSize(self.c_rasterband) }
+        unsafe { out = gdal_bind::GDALGetRasterBandYSize(self.c_rasterband) }
         out as usize
     }
 
@@ -403,7 +403,7 @@ impl<'a> RasterBand<'a> {
         let options_ptr: *mut GDALRasterIOExtraArg = &mut options;
 
         let rv = unsafe {
-            gdal_sys::GDALRasterIOEx(
+            gdal_bind::GDALRasterIOEx(
                 self.c_rasterband,
                 GDALRWFlag::GF_Read,
                 window.0.try_into()?,
@@ -476,7 +476,7 @@ impl<'a> RasterBand<'a> {
         // in the rust std docs
         // (https://doc.rust-lang.org/std/vec/struct.Vec.html#examples-18)
         let rv = unsafe {
-            gdal_sys::GDALRasterIOEx(
+            gdal_bind::GDALRasterIOEx(
                 self.c_rasterband,
                 GDALRWFlag::GF_Read,
                 window.0.try_into()?,
@@ -551,7 +551,7 @@ impl<'a> RasterBand<'a> {
         let mut data: Vec<T> = Vec::with_capacity(pixels);
 
         let rv = unsafe {
-            gdal_sys::GDALReadBlock(
+            gdal_bind::GDALReadBlock(
                 self.c_rasterband,
                 block_index.0.try_into()?,
                 block_index.1.try_into()?,
@@ -628,7 +628,7 @@ impl<'a> RasterBand<'a> {
         }
 
         let rv = unsafe {
-            gdal_sys::GDALWriteBlock(
+            gdal_bind::GDALWriteBlock(
                 self.c_rasterband,
                 block_index.0.try_into()?,
                 block_index.1.try_into()?,
@@ -665,7 +665,7 @@ impl<'a> RasterBand<'a> {
         }
 
         let rv = unsafe {
-            gdal_sys::GDALRasterIO(
+            gdal_bind::GDALRasterIO(
                 self.c_rasterband,
                 GDALRWFlag::GF_Write,
                 window.0.try_into()?,
@@ -688,7 +688,7 @@ impl<'a> RasterBand<'a> {
 
     /// Returns the pixel datatype of this band.
     pub fn band_type(&self) -> GdalDataType {
-        let ordinal = unsafe { gdal_sys::GDALGetRasterDataType(self.c_rasterband) };
+        let ordinal = unsafe { gdal_bind::GDALGetRasterDataType(self.c_rasterband) };
         ordinal.try_into().unwrap_or(GdalDataType::Unknown)
     }
 
@@ -696,7 +696,7 @@ impl<'a> RasterBand<'a> {
     pub fn no_data_value(&self) -> Option<f64> {
         let mut pb_success = 1;
         let no_data =
-            unsafe { gdal_sys::GDALGetRasterNoDataValue(self.c_rasterband, &mut pb_success) };
+            unsafe { gdal_bind::GDALGetRasterNoDataValue(self.c_rasterband, &mut pb_success) };
         if pb_success == 1 {
             return Some(no_data);
         }
@@ -708,9 +708,9 @@ impl<'a> RasterBand<'a> {
     /// If `no_data` is `None`, any existing no-data value is deleted.
     pub fn set_no_data_value(&mut self, no_data: Option<f64>) -> Result<()> {
         let rv = if let Some(no_data) = no_data {
-            unsafe { gdal_sys::GDALSetRasterNoDataValue(self.c_rasterband, no_data) }
+            unsafe { gdal_bind::GDALSetRasterNoDataValue(self.c_rasterband, no_data) }
         } else {
-            unsafe { gdal_sys::GDALDeleteRasterNoDataValue(self.c_rasterband) }
+            unsafe { gdal_bind::GDALDeleteRasterNoDataValue(self.c_rasterband) }
         };
 
         if rv != CPLErr::CE_None {
@@ -735,7 +735,7 @@ impl<'a> RasterBand<'a> {
     pub fn no_data_value_u64(&self) -> Option<u64> {
         let mut pb_success = 1;
         let no_data = unsafe {
-            gdal_sys::GDALGetRasterNoDataValueAsUInt64(self.c_rasterband, &mut pb_success)
+            gdal_bind::GDALGetRasterNoDataValueAsUInt64(self.c_rasterband, &mut pb_success)
         };
         if pb_success == 1 {
             return Some(no_data);
@@ -756,9 +756,9 @@ impl<'a> RasterBand<'a> {
     #[cfg(all(major_ge_3, minor_ge_5))]
     pub fn set_no_data_value_u64(&mut self, no_data: Option<u64>) -> Result<()> {
         let rv = if let Some(no_data) = no_data {
-            unsafe { gdal_sys::GDALSetRasterNoDataValueAsUInt64(self.c_rasterband, no_data) }
+            unsafe { gdal_bind::GDALSetRasterNoDataValueAsUInt64(self.c_rasterband, no_data) }
         } else {
-            unsafe { gdal_sys::GDALDeleteRasterNoDataValue(self.c_rasterband) }
+            unsafe { gdal_bind::GDALDeleteRasterNoDataValue(self.c_rasterband) }
         };
 
         if rv != CPLErr::CE_None {
@@ -783,7 +783,7 @@ impl<'a> RasterBand<'a> {
     pub fn no_data_value_i64(&self) -> Option<i64> {
         let mut pb_success = 1;
         let no_data = unsafe {
-            gdal_sys::GDALGetRasterNoDataValueAsInt64(self.c_rasterband, &mut pb_success)
+            gdal_bind::GDALGetRasterNoDataValueAsInt64(self.c_rasterband, &mut pb_success)
         };
         if pb_success == 1 {
             return Some(no_data);
@@ -804,9 +804,9 @@ impl<'a> RasterBand<'a> {
     #[cfg(all(major_ge_3, minor_ge_5))]
     pub fn set_no_data_value_i64(&mut self, no_data: Option<i64>) -> Result<()> {
         let rv = if let Some(no_data) = no_data {
-            unsafe { gdal_sys::GDALSetRasterNoDataValueAsInt64(self.c_rasterband, no_data) }
+            unsafe { gdal_bind::GDALSetRasterNoDataValueAsInt64(self.c_rasterband, no_data) }
         } else {
-            unsafe { gdal_sys::GDALDeleteRasterNoDataValue(self.c_rasterband) }
+            unsafe { gdal_bind::GDALDeleteRasterNoDataValue(self.c_rasterband) }
         };
 
         if rv != CPLErr::CE_None {
@@ -825,7 +825,7 @@ impl<'a> RasterBand<'a> {
     /// [`GDALFillRaster`](https://gdal.org/api/gdalrasterband_cpp.html#classGDALRasterBand_1a55bf20527df638dc48bf25e2ff26f353)
     pub fn fill(&mut self, real_value: f64, imaginary_value: Option<f64>) -> Result<()> {
         let rv = unsafe {
-            gdal_sys::GDALFillRaster(
+            gdal_bind::GDALFillRaster(
                 self.c_rasterband,
                 real_value,
                 imaginary_value.unwrap_or(0.0),
@@ -839,7 +839,7 @@ impl<'a> RasterBand<'a> {
 
     /// Returns the color interpretation of this band.
     pub fn color_interpretation(&self) -> ColorInterpretation {
-        let interp_index = unsafe { gdal_sys::GDALGetRasterColorInterpretation(self.c_rasterband) };
+        let interp_index = unsafe { gdal_bind::GDALGetRasterColorInterpretation(self.c_rasterband) };
         ColorInterpretation::from_c_int(interp_index).unwrap()
     }
 
@@ -847,7 +847,7 @@ impl<'a> RasterBand<'a> {
     pub fn set_color_interpretation(&mut self, interp: ColorInterpretation) -> Result<()> {
         let interp_index = interp.c_int();
         let rv =
-            unsafe { gdal_sys::GDALSetRasterColorInterpretation(self.c_rasterband, interp_index) };
+            unsafe { gdal_bind::GDALSetRasterColorInterpretation(self.c_rasterband, interp_index) };
         if rv != CPLErr::CE_None {
             return Err(_last_cpl_err(rv));
         }
@@ -856,7 +856,7 @@ impl<'a> RasterBand<'a> {
 
     /// Get the color table for this band if it has one.
     pub fn color_table(&self) -> Option<ColorTable> {
-        let c_color_table = unsafe { gdal_sys::GDALGetRasterColorTable(self.c_rasterband) };
+        let c_color_table = unsafe { gdal_bind::GDALGetRasterColorTable(self.c_rasterband) };
         if c_color_table.is_null() {
             return None;
         }
@@ -873,7 +873,7 @@ impl<'a> RasterBand<'a> {
     /// Returns the scale of this band if set.
     pub fn scale(&self) -> Option<f64> {
         let mut pb_success = 1;
-        let scale = unsafe { gdal_sys::GDALGetRasterScale(self.c_rasterband, &mut pb_success) };
+        let scale = unsafe { gdal_bind::GDALGetRasterScale(self.c_rasterband, &mut pb_success) };
         if pb_success == 1 {
             return Some(scale);
         }
@@ -882,7 +882,7 @@ impl<'a> RasterBand<'a> {
 
     /// Set the scale for this band.
     pub fn set_scale(&mut self, scale: f64) -> Result<()> {
-        let rv = unsafe { gdal_sys::GDALSetRasterScale(self.c_rasterband, scale) };
+        let rv = unsafe { gdal_bind::GDALSetRasterScale(self.c_rasterband, scale) };
         if rv != CPLErr::CE_None {
             return Err(_last_cpl_err(rv));
         }
@@ -892,7 +892,7 @@ impl<'a> RasterBand<'a> {
     /// Returns the offset of this band if set.
     pub fn offset(&self) -> Option<f64> {
         let mut pb_success = 1;
-        let offset = unsafe { gdal_sys::GDALGetRasterOffset(self.c_rasterband, &mut pb_success) };
+        let offset = unsafe { gdal_bind::GDALGetRasterOffset(self.c_rasterband, &mut pb_success) };
         if pb_success == 1 {
             return Some(offset);
         }
@@ -901,7 +901,7 @@ impl<'a> RasterBand<'a> {
 
     /// Set the offset for this band.
     pub fn set_offset(&mut self, offset: f64) -> Result<()> {
-        let rv = unsafe { gdal_sys::GDALSetRasterOffset(self.c_rasterband, offset) };
+        let rv = unsafe { gdal_bind::GDALSetRasterOffset(self.c_rasterband, offset) };
         if rv != CPLErr::CE_None {
             return Err(_last_cpl_err(rv));
         }
@@ -916,7 +916,7 @@ impl<'a> RasterBand<'a> {
         let mut block_size_x = 0;
         let mut block_size_y = 0;
         let rv = unsafe {
-            gdal_sys::GDALGetActualBlockSize(
+            gdal_bind::GDALGetActualBlockSize(
                 self.c_rasterband,
                 offset_x,
                 offset_y,
@@ -931,7 +931,7 @@ impl<'a> RasterBand<'a> {
     }
 
     pub fn overview_count(&self) -> Result<i32> {
-        unsafe { Ok(gdal_sys::GDALGetOverviewCount(self.c_rasterband)) }
+        unsafe { Ok(gdal_bind::GDALGetOverviewCount(self.c_rasterband)) }
     }
 
     pub fn overview(&self, overview_index: usize) -> Result<RasterBand<'a>> {
@@ -939,7 +939,7 @@ impl<'a> RasterBand<'a> {
 
         unsafe {
             let c_band = self.c_rasterband;
-            let overview = gdal_sys::GDALGetOverview(c_band, overview_index);
+            let overview = gdal_bind::GDALGetOverview(c_band, overview_index);
             if overview.is_null() {
                 return Err(_last_null_pointer_err("GDALGetOverview"));
             }
@@ -950,13 +950,13 @@ impl<'a> RasterBand<'a> {
     /// Return the unit of the rasterband.
     /// If there is no unit, the empty string is returned.
     pub fn unit(&self) -> String {
-        let c_ptr = unsafe { gdal_sys::GDALGetRasterUnitType(self.c_rasterband) };
+        let c_ptr = unsafe { gdal_bind::GDALGetRasterUnitType(self.c_rasterband) };
         _string(c_ptr).unwrap_or_default()
     }
 
     /// Read the band mask flags for a GDAL `RasterBand`.
     pub fn mask_flags(&self) -> Result<GdalMaskFlags> {
-        let band_mask_flags = unsafe { gdal_sys::GDALGetMaskFlags(self.c_rasterband) };
+        let band_mask_flags = unsafe { gdal_bind::GDALGetMaskFlags(self.c_rasterband) };
 
         Ok(GdalMaskFlags(band_mask_flags))
     }
@@ -970,7 +970,7 @@ impl<'a> RasterBand<'a> {
             0x00
         };
 
-        let rv = unsafe { gdal_sys::GDALCreateMaskBand(self.c_rasterband, flags) };
+        let rv = unsafe { gdal_bind::GDALCreateMaskBand(self.c_rasterband, flags) };
         if rv != 0 {
             return Err(_last_cpl_err(rv));
         };
@@ -980,7 +980,7 @@ impl<'a> RasterBand<'a> {
     /// Open the mask-`Rasterband`
     pub fn open_mask_band(&self) -> Result<RasterBand> {
         unsafe {
-            let mask_band_ptr = gdal_sys::GDALGetMaskBand(self.c_rasterband);
+            let mask_band_ptr = gdal_bind::GDALGetMaskBand(self.c_rasterband);
             if mask_band_ptr.is_null() {
                 return Err(_last_null_pointer_err("GDALGetMaskBand"));
             }
@@ -1216,11 +1216,11 @@ impl Histogram {
 /// [`GDALGetRasterHistogram`] and [`GDALGetDefaultHistogram`] return data:
 /// * `GDALGetRasterHistogram`: requires a pre-allocated array, stored in `HistogramCounts::RustAllocated`.
 /// * `GDALGetDefaultHistogram`: returns a pointer (via an 'out' parameter) to a GDAL allocated array,
-///   stored in `HistogramCounts::GdalAllocated`, to be deallocated with [`VSIFree`][gdal_sys::VSIFree].
+///   stored in `HistogramCounts::GdalAllocated`, to be deallocated with [`VSIFree`][gdal_bind::VSIFree].
 enum HistogramCounts {
     /// Pointer to GDAL allocated array and length of histogram counts.
     ///
-    /// Requires freeing with [`VSIFree`][gdal_sys::VSIFree].
+    /// Requires freeing with [`VSIFree`][gdal_bind::VSIFree].
     GdalAllocated(*mut u64, usize),
     /// Rust-allocated vector into which GDAL stores histogram counts.
     RustAllocated(Vec<u64>),
@@ -1245,7 +1245,7 @@ impl Drop for HistogramCounts {
     fn drop(&mut self) {
         match self {
             HistogramCounts::GdalAllocated(p, _) => unsafe {
-                gdal_sys::VSIFree(*p as *mut c_void);
+                gdal_bind::VSIFree(*p as *mut c_void);
             },
             HistogramCounts::RustAllocated(_) => {}
         }
@@ -1351,13 +1351,13 @@ impl ColorInterpretation {
     pub fn from_name(name: &str) -> Result<Self> {
         let c_str_interp_name = CString::new(name)?;
         let interp_index =
-            unsafe { gdal_sys::GDALGetColorInterpretationByName(c_str_interp_name.as_ptr()) };
+            unsafe { gdal_bind::GDALGetColorInterpretationByName(c_str_interp_name.as_ptr()) };
         Ok(Self::from_c_int(interp_index).unwrap())
     }
 
     /// Returns the name of this color interpretation.
     pub fn name(&self) -> String {
-        let c_ptr = unsafe { gdal_sys::GDALGetColorInterpretationName(self.c_int()) };
+        let c_ptr = unsafe { gdal_bind::GDALGetColorInterpretationName(self.c_int()) };
         _string(c_ptr).unwrap_or_default()
     }
 }
@@ -1656,13 +1656,13 @@ impl<'a> ColorTable<'a> {
 
     /// Get the number of color entries in this color table.
     pub fn entry_count(&self) -> usize {
-        unsafe { gdal_sys::GDALGetColorEntryCount(self.c_color_table) as usize }
+        unsafe { gdal_bind::GDALGetColorEntryCount(self.c_color_table) as usize }
     }
 
     /// Get a color entry.
     pub fn entry(&self, index: usize) -> Option<ColorEntry> {
         let color_entry = unsafe {
-            let c_color_entry = gdal_sys::GDALGetColorEntry(self.c_color_table, index as i32);
+            let c_color_entry = gdal_bind::GDALGetColorEntry(self.c_color_table, index as i32);
             if c_color_entry.is_null() {
                 return None;
             }
@@ -1682,7 +1682,7 @@ impl<'a> ColorTable<'a> {
             c4: 0,
         };
         if unsafe {
-            gdal_sys::GDALGetColorEntryAsRGB(self.c_color_table, index as i32, &mut color_entry)
+            gdal_bind::GDALGetColorEntryAsRGB(self.c_color_table, index as i32, &mut color_entry)
         } == 0
         {
             return None;

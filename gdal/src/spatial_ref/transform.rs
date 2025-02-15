@@ -1,6 +1,6 @@
 use std::{ffi::c_int, ptr::null_mut};
 
-use gdal_sys::{CPLErr, OGRCoordinateTransformationH};
+use gdal_bind::{CPLErr, OGRCoordinateTransformationH};
 
 use crate::errors;
 use crate::errors::GdalError;
@@ -17,7 +17,7 @@ pub struct CoordTransform {
 
 impl Drop for CoordTransform {
     fn drop(&mut self) {
-        unsafe { gdal_sys::OCTDestroyCoordinateTransformation(self.inner) };
+        unsafe { gdal_bind::OCTDestroyCoordinateTransformation(self.inner) };
     }
 }
 
@@ -27,7 +27,7 @@ impl CoordTransform {
     /// See: [OCTNewCoordinateTransformation](https://gdal.org/api/ogr_srs_api.html#_CPPv430OCTNewCoordinateTransformation20OGRSpatialReferenceH20OGRSpatialReferenceH)
     pub fn new(source: &SpatialRef, target: &SpatialRef) -> errors::Result<CoordTransform> {
         let c_obj = unsafe {
-            gdal_sys::OCTNewCoordinateTransformation(source.to_c_hsrs(), target.to_c_hsrs())
+            gdal_bind::OCTNewCoordinateTransformation(source.to_c_hsrs(), target.to_c_hsrs())
         };
         if c_obj.is_null() {
             return Err(_last_null_pointer_err("OCTNewCoordinateTransformation"));
@@ -49,7 +49,7 @@ impl CoordTransform {
         options: &CoordTransformOptions,
     ) -> errors::Result<CoordTransform> {
         let c_obj = unsafe {
-            gdal_sys::OCTNewCoordinateTransformationEx(
+            gdal_bind::OCTNewCoordinateTransformationEx(
                 source.to_c_hsrs(),
                 target.to_c_hsrs(),
                 options.c_options(),
@@ -90,7 +90,7 @@ impl CoordTransform {
         let mut out_ymax: f64 = 0.;
 
         let ret_val = unsafe {
-            gdal_sys::OCTTransformBounds(
+            gdal_bind::OCTTransformBounds(
                 self.inner,
                 bounds[0],
                 bounds[1],
@@ -145,7 +145,7 @@ impl CoordTransform {
             y.len()
         );
         let ret_val = unsafe {
-            gdal_sys::OCTTransform(
+            gdal_bind::OCTTransform(
                 self.inner,
                 nb_coords as c_int,
                 x.as_mut_ptr(),
@@ -192,7 +192,7 @@ impl CoordTransform {
             .expect("Coordinate transform failed")
     }
 
-    /// Returns a C pointer to the allocated [`gdal_sys::OGRCoordinateTransformationH`] memory.
+    /// Returns a C pointer to the allocated [`gdal_bind::OGRCoordinateTransformationH`] memory.
     ///
     /// # Safety
     /// This method returns a raw C pointer

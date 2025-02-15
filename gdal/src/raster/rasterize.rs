@@ -2,7 +2,7 @@ use std::convert::TryFrom;
 use std::ffi::c_void;
 use std::ptr;
 
-use gdal_sys::CPLErr;
+use gdal_bind::CPLErr;
 
 use crate::cpl::CslStringList;
 use crate::dataset::Dataset;
@@ -175,11 +175,11 @@ pub fn rasterize(
     unsafe {
         // The C function takes `bands`, `geometries`, `burn_values`
         // and `options` without mention of `const`, and this is
-        // propagated to the gdal_sys wrapper. The lack of `const`
+        // propagated to the gdal_bind wrapper. The lack of `const`
         // seems like a mistake in the GDAL API, so we just do a casts
         // here.
 
-        let error = gdal_sys::GDALRasterizeGeometries(
+        let error = gdal_bind::GDALRasterizeGeometries(
             dataset.c_dataset(),
             bands.len() as i32,
             bands.as_ptr() as *mut i32,

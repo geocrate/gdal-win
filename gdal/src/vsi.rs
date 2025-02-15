@@ -7,7 +7,7 @@ use std::marker::PhantomData;
 use std::mem::ManuallyDrop;
 use std::path::{Path, PathBuf};
 
-use gdal_sys::{VSIFCloseL, VSIFileFromMemBuffer, VSIFree, VSIGetMemFileBuffer, VSIUnlink};
+use gdal_bind::{VSIFCloseL, VSIFileFromMemBuffer, VSIFree, VSIGetMemFileBuffer, VSIUnlink};
 
 use crate::errors::{GdalError, Result};
 use crate::utils::{_last_null_pointer_err, _path_to_c_string, _pathbuf_array};
@@ -17,13 +17,13 @@ pub fn read_dir<P: AsRef<Path>>(path: P, recursive: bool) -> Result<Vec<PathBuf>
     fn _read_dir(path: &Path, recursive: bool) -> Result<Vec<PathBuf>> {
         let path = _path_to_c_string(path)?;
         let data = if recursive {
-            let data = unsafe { gdal_sys::VSIReadDirRecursive(path.as_ptr()) };
+            let data = unsafe { gdal_bind::VSIReadDirRecursive(path.as_ptr()) };
             if data.is_null() {
                 return Err(_last_null_pointer_err("VSIReadDirRecursive"));
             }
             data
         } else {
-            let data = unsafe { gdal_sys::VSIReadDir(path.as_ptr()) };
+            let data = unsafe { gdal_bind::VSIReadDir(path.as_ptr()) };
             if data.is_null() {
                 return Err(_last_null_pointer_err("VSIReadDir"));
             }
@@ -31,7 +31,7 @@ pub fn read_dir<P: AsRef<Path>>(path: P, recursive: bool) -> Result<Vec<PathBuf>
         };
 
         let ret = Ok(_pathbuf_array(data));
-        unsafe { gdal_sys::CSLDestroy(data) };
+        unsafe { gdal_bind::CSLDestroy(data) };
         ret
     }
     _read_dir(path.as_ref(), recursive)

@@ -1,6 +1,6 @@
 use std::ptr::{null, null_mut};
 
-use gdal_sys::{CPLErr, GDALResampleAlg};
+use gdal_bind::{CPLErr, GDALResampleAlg};
 
 use crate::dataset::Dataset;
 use crate::errors::*;
@@ -8,7 +8,7 @@ use crate::utils::_last_cpl_err;
 
 pub fn reproject(src: &Dataset, dst: &Dataset) -> Result<()> {
     let rv = unsafe {
-        gdal_sys::GDALReprojectImage(
+        gdal_bind::GDALReprojectImage(
             src.c_dataset(),
             null(),
             dst.c_dataset(),

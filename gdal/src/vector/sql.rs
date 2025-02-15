@@ -2,7 +2,7 @@ use std::ffi::{CStr, CString};
 use std::ops::{Deref, DerefMut};
 
 use crate::Dataset;
-use gdal_sys::{CPLErr, GDALDatasetH, OGRGeometryH};
+use gdal_bind::{CPLErr, GDALDatasetH, OGRGeometryH};
 
 use crate::errors::*;
 use crate::utils::_last_cpl_err;
@@ -33,7 +33,7 @@ impl DerefMut for ResultSet<'_> {
 
 impl Drop for ResultSet<'_> {
     fn drop(&mut self) {
-        unsafe { gdal_sys::GDALDatasetReleaseResultSet(self.dataset, self.layer.c_layer()) };
+        unsafe { gdal_bind::GDALDatasetReleaseResultSet(self.dataset, self.layer.c_layer()) };
     }
 }
 
@@ -134,13 +134,13 @@ impl Dataset {
 
         let c_dataset = self.c_dataset();
 
-        unsafe { gdal_sys::CPLErrorReset() };
+        unsafe { gdal_bind::CPLErrorReset() };
 
         let c_layer = unsafe {
-            gdal_sys::GDALDatasetExecuteSQL(c_dataset, query.as_ptr(), filter_geom, dialect_ptr)
+            gdal_bind::GDALDatasetExecuteSQL(c_dataset, query.as_ptr(), filter_geom, dialect_ptr)
         };
 
-        let cpl_err = unsafe { gdal_sys::CPLGetLastErrorType() };
+        let cpl_err = unsafe { gdal_bind::CPLGetLastErrorType() };
 
         if cpl_err != CPLErr::CE_None {
             return Err(_last_cpl_err(cpl_err));

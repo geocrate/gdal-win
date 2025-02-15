@@ -9,7 +9,7 @@ use std::mem::ManuallyDrop;
 use std::ptr;
 use std::str::FromStr;
 
-use gdal_sys::{
+use gdal_bind::{
     CSLAddNameValue, CSLAddString, CSLCount, CSLDestroy, CSLDuplicate, CSLFetchNameValue,
     CSLFindString, CSLFindStringCaseSensitive, CSLGetField, CSLPartialFindString, CSLSetNameValue,
     CSLTokenizeString2,
@@ -18,7 +18,7 @@ use gdal_sys::{
 use crate::errors::{GdalError, Result};
 use crate::utils::_string;
 
-/// Wraps a [`gdal_sys::CSLConstList`]  (a.k.a. `char **papszStrList`).
+/// Wraps a [`gdal_bind::CSLConstList`]  (a.k.a. `char **papszStrList`).
 ///
 /// This data structure (a null-terminated array of null-terminated strings) is used throughout
 /// GDAL to pass `KEY=VALUE`-formatted options to various functions.
@@ -262,13 +262,13 @@ impl CslStringList {
     }
 
     /// Get the raw pointer to the underlying data.
-    pub fn as_ptr(&self) -> gdal_sys::CSLConstList {
+    pub fn as_ptr(&self) -> gdal_bind::CSLConstList {
         self.list_ptr
     }
 
     /// Get the raw pointer to the underlying data, passing ownership
     /// (and responsibility for freeing) to the the caller.
-    pub fn into_ptr(self) -> gdal_sys::CSLConstList {
+    pub fn into_ptr(self) -> gdal_bind::CSLConstList {
         let s = ManuallyDrop::new(self);
         s.list_ptr
     }

@@ -78,7 +78,7 @@ pub use feature::{
     field_type_to_name, Feature, FeatureIterator, FieldValue, FieldValueIterator,
     OwnedFeatureIterator,
 };
-pub use gdal_sys::{OGRFieldType, OGRwkbGeometryType};
+pub use gdal_bind::{OGRFieldType, OGRwkbGeometryType};
 pub use geometry::{
     geometry_type_flatten, geometry_type_has_m, geometry_type_has_z, geometry_type_set_m,
     geometry_type_set_modifier, geometry_type_set_z, geometry_type_to_name, Geometry, GeometryRef,
@@ -88,9 +88,9 @@ pub use options::LayerOptions;
 pub use transaction::Transaction;
 
 /// Axis aligned 2D bounding box.
-pub type Envelope = gdal_sys::OGREnvelope;
+pub type Envelope = gdal_bind::OGREnvelope;
 
 /// Axis aligned 3D bounding box.
-pub type Envelope3D = gdal_sys::OGREnvelope3D;
+pub type Envelope3D = gdal_bind::OGREnvelope3D;
 
 pub use ops::ToGdal;

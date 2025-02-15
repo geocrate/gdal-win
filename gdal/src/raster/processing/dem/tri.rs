@@ -28,7 +28,7 @@ impl TriOptions {
     }
 
     /// Render relevant common options into [`CslStringList`] values, as compatible with
-    /// [`gdal_sys::GDALDEMProcessing`].
+    /// [`gdal_bind::GDALDEMProcessing`].
     pub fn to_options_list(&self) -> errors::Result<CslStringList> {
         let mut opts = CslStringList::default();
 

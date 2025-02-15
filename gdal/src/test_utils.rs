@@ -1,6 +1,6 @@
 use crate::vsi::unlink_mem_file;
 use crate::{Dataset, DatasetOptions};
-use gdal_sys::GDALAccess;
+use gdal_bind::GDALAccess;
 use std::ffi::c_void;
 use std::marker::PhantomData;
 use std::path::{Path, PathBuf};
@@ -94,7 +94,7 @@ pub(crate) struct SuppressGDALErrorLog {
 
 impl SuppressGDALErrorLog {
     pub(crate) fn new() -> Self {
-        unsafe { gdal_sys::CPLPushErrorHandler(Some(gdal_sys::CPLQuietErrorHandler)) };
+        unsafe { gdal_bind::CPLPushErrorHandler(Some(gdal_bind::CPLQuietErrorHandler)) };
         SuppressGDALErrorLog {
             _private: PhantomData,
         }
@@ -103,7 +103,7 @@ impl SuppressGDALErrorLog {
 
 impl Drop for SuppressGDALErrorLog {
     fn drop(&mut self) {
-        unsafe { gdal_sys::CPLPopErrorHandler() };
+        unsafe { gdal_bind::CPLPopErrorHandler() };
     }
 }
 

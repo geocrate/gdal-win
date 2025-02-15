@@ -72,7 +72,7 @@ use reqwest::blocking::get;
 use std::io::Write;
 use sevenz_rust::decompress_file;
 
-pub fn build() {
+pub fn gdal_build() {
     let out_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let profile = env::var("PROFILE").unwrap();
     let target_dir = PathBuf::from(&out_dir).join("target");

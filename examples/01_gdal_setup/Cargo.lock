@@ -366,9 +366,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "gdal-bind"
+version = "3.100.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "02531185c81863ed685dc485610d5d848018f483a11fde7f12c18c9504437949"
+
+[[package]]
 name = "gdal-build"
-version = "0.1.0"
-source = "git+https://github.com/geocrate/gdal-build.git#c3b82487d8f5e8e5fc7db42478680da7e8a3d5c3"
+version = "3.100.0"
+source = "git+https://github.com/geocrate/gdal-build.git#8424f3569bc02299f5cef05c726192342a352fc2"
 dependencies = [
  "reqwest",
  "sevenz-rust",
@@ -377,22 +383,17 @@ dependencies = [
 [[package]]
 name = "gdal-win"
 version = "3.100.0"
-source = "git+https://github.com/geocrate/gdal-win.git#66f5d03309410c5eb3a713ac5a63f65e766787bf"
+source = "git+https://github.com/geocrate/gdal-win.git#61dee6a30c2a1a8257643e744fefb4620fcc17b9"
 dependencies = [
  "bitflags",
  "chrono",
- "gdal_sys",
+ "gdal-bind",
  "geo-types",
  "reqwest",
  "sevenz-rust",
  "tempfile",
  "thiserror",
 ]
-
-[[package]]
-name = "gdal_sys"
-version = "0.0.0"
-source = "git+https://github.com/geocrate/gdal-win.git#66f5d03309410c5eb3a713ac5a63f65e766787bf"
 
 [[package]]
 name = "generic-array"

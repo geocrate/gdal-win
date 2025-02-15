@@ -13,36 +13,36 @@ pub mod spatial_ref;
 pub mod vector;
 
 #[path = "../gdal/src/cpl.rs"]
-mod cpl;
+pub mod cpl;
 
 #[path = "../gdal/src/dataset.rs"]
-mod dataset;
+pub mod dataset;
 
 pub use dataset::Dataset;
 
 #[path = "../gdal/src/driver.rs"]
-mod driver;
+pub mod driver;
 
 pub use driver::{Driver, DriverManager, DriverType};
 
 #[path = "../gdal/src/gdal_major_object.rs"]
-mod gdal_major_object;
+pub mod gdal_major_object;
 
 #[path = "../gdal/src/errors.rs"]
-mod errors;
+pub mod errors;
 
 #[path = "../gdal/src/geo_transform.rs"]
-mod geo_transform;
+pub mod geo_transform;
 
 pub use geo_transform::{GeoTransform, GeoTransformEx};
 
 #[path = "../gdal/src/metadata.rs"]
-mod metadata;
+pub mod metadata;
 
 pub use metadata::{Metadata, MetadataEntry};
 
 #[path = "../gdal/src/options.rs"]
-mod options;
+pub mod options;
 
 pub use options::{DatasetOptions, GdalOpenFlags};
 
@@ -50,13 +50,15 @@ pub use options::{DatasetOptions, GdalOpenFlags};
 mod test_utils;
 
 #[path = "../gdal/src/utils.rs"]
-mod utils;
+pub mod utils;
 
 #[path = "../gdal/src/version.rs"]
-mod version;
+pub mod version;
 
 #[path = "../gdal/src/vsi.rs"]
-mod vsi;
+pub mod vsi;
+
+pub mod build;
 
 #[cfg(test)]
 fn assert_almost_eq(a: f64, b: f64) {

@@ -374,7 +374,8 @@ checksum = "02531185c81863ed685dc485610d5d848018f483a11fde7f12c18c9504437949"
 [[package]]
 name = "gdal-build"
 version = "3.100.0"
-source = "git+https://github.com/geocrate/gdal-build.git#8424f3569bc02299f5cef05c726192342a352fc2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54eec0811f2584c0548aeb9edce4afa33da6bd80ced28ad713f132d0e1703bd5"
 dependencies = [
  "reqwest",
  "sevenz-rust",
@@ -383,7 +384,7 @@ dependencies = [
 [[package]]
 name = "gdal-win"
 version = "3.100.0"
-source = "git+https://github.com/geocrate/gdal-win.git#10dfd6909a68bde7389fefe0cd6ff7d0915c45f5"
+source = "git+https://github.com/geocrate/gdal-win.git#d816ce4d9b07f6ef1c6adf3ff03fbfb57fc70271"
 dependencies = [
  "bitflags",
  "chrono",

@@ -1,3 +1,3 @@
 fn main() {
-    gdal_build::gdal_build();
+    gdal_win::build();
 }

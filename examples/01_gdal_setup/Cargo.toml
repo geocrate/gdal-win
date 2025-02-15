@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-gdal-win = { git = "https://github.com/geocrate/gdal-win.git" }
+gdal-win = "3.100.0"
 
 [build-dependencies]
 gdal-build = "3.100.0"

@@ -1,0 +1,11 @@
+[package]
+name = "jkl1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+gdal-win = { git = "https://github.com/geocrate/gdal-win.git" }
+
+[build-dependencies]
+gdal-win = { git = "https://github.com/geocrate/gdal-win.git" }
+

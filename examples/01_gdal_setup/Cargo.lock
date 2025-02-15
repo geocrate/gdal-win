@@ -383,7 +383,7 @@ dependencies = [
 [[package]]
 name = "gdal-win"
 version = "3.100.0"
-source = "git+https://github.com/geocrate/gdal-win.git#61dee6a30c2a1a8257643e744fefb4620fcc17b9"
+source = "git+https://github.com/geocrate/gdal-win.git#10dfd6909a68bde7389fefe0cd6ff7d0915c45f5"
 dependencies = [
  "bitflags",
  "chrono",

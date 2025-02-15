@@ -37,6 +37,7 @@ fn main() {
     }
 
     println!("cargo:rustc-link-lib=static=gdal_i");
-    println!("cargo:rustc-link-search={:?}", gdal_lib_dir);
+    println!("cargo:rustc-link-search={}", gdal_lib_dir.to_str().unwrap());
+    
     println!("cargo:rerun-if-changed=build.rs");
 }

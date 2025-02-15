@@ -1,3 +1,6 @@
+extern crate reqwest;
+extern crate sevenz_rust;
+
 use std::{env, fs, path::PathBuf};
 use reqwest::blocking::get;
 use std::io::Write;

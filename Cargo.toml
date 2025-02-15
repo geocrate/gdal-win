@@ -2,11 +2,16 @@
 name = "gdal-win"
 version = "3.100.0"
 edition = "2021"
+description = "GDAL for Rust / Windows"
+license = "Apache-2.0"
+documentation = "https://github.com/geocrate/gdal-win"
+homepage = "https://github.com/geocrate/gdal-win"
+repository = "https://github.com/geocrate/gdal-win"
 
 [dependencies]
 bitflags = "2.8.0"
 chrono = "0.4.39"
-gdal_sys = { path = "./gdal_sys" }
+gdal_sys = { version = "3.100.0", path = "./gdal_sys" }
 geo-types = "0.7.15"
 reqwest = { version = "0.12.12", features = ["blocking"] }
 sevenz-rust = "0.6.1"

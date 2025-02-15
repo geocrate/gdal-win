@@ -1,2 +1,4 @@
 [package]
 name = "gdal_sys"
+version = "3.100.0"
+edition = "2021"

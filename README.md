@@ -2,11 +2,11 @@
 
 **🗺️ GDAL for Rust / Windows 🎯**
 
-`gdal-win` provides prebuilt GDAL libraries and bindings for Rust development on Windows. It automatically sets up GDAL binaries obtained from GISInternals. It includes necessary DLLs and libraries sourced from [GISInternals](https://www.gisinternals.com) and utilizes the GDAL Rust wrapper from [georust/gdal](https://github.com/georust/gdal).
+`gdal-win` configures prebuilt GDAL libraries and bindings for Rust development on Windows. It automatically sets up GDAL binaries obtained from GISInternals [GISInternals](https://www.gisinternals.com) and utilizes the GDAL Rust wrapper / bindings from [georust/gdal](https://github.com/georust/gdal).
 
 ## ✨ Features
 
-- ⚡ Precompiled GDAL binaries for Windows x64 from [GISInternals](https://www.gisinternals.com).
+- 🔧 Automatically configures GDAL using ⚡precompiled GDAL binaries for Windows x64 from [GISInternals](https://www.gisinternals.com) during the build process using [`gdal-setup`](https://github.com/geocrate/gdal-setup) internally.
 - 🦀 Rust bindings to GDAL from [georust/gdal](https://github.com/georust/gdal).
 - 🛠️ Simplifies GDAL setup for Rust developers on Windows.
 
@@ -36,7 +36,7 @@ fn main() {
 }
 ```
 
-This will configure the necessary environment for GDAL during the build process.
+This will configure the necessary environment for GDAL during the build process, including setting up Static Libraries (`gdal_i.lib`) and DLLs.
 
 ## 🔥 Example Usage
 
@@ -47,26 +47,26 @@ use gdal_win::version::VersionInfo;
 
 fn main() {
     let report = VersionInfo::version_report();
-    println!("{report}");
+    println!("GDAL Version Report:\n{}", report);
 }
 ```
 
 ## 🖥️ Compatibility
 
 - ✅ Tested and working on Windows x64.
-- 🏗️ Requires a compatible version of GDAL binaries from GISInternals.
 
 ## 📜 License
 
-This project follows the licensing terms of [georust/gdal](https://github.com/georust/gdal) and the respective GDAL libraries.
+This project follows the licensing terms of [georust/gdal](https://github.com/georust/gdal) and GDAL libraries from [GISInternals](https://www.gisinternals.com).
 
 ## 💖 Acknowledgments
 
-- 🎉 [GISInternals](https://www.gisinternals.com) for providing Windows builds of GDAL.
 - 🦀 [GeoRust](https://github.com/georust) for maintaining the Rust GDAL bindings.
+- 🎉 [GISInternals](https://www.gisinternals.com) for providing Windows builds of GDAL.
 
 ---
 
 **🤝 Contributions & Issues**
-Feel free to open an issue or contribute to the project by submitting a pull request! 🚀
+
+We welcome feature requests, bug reports, and improvements! Feel free to open an issue or submit a pull request. 🚀
 

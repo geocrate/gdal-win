@@ -1,6 +1,6 @@
 [package]
 name = "gdal-win"
-version = "3.100.1"
+version = "3.100.2"
 edition = "2021"
 description = "GDAL for Rust / Windows"
 license = "Apache-2.0"

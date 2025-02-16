@@ -6,8 +6,9 @@
 
 ## ✨ Features
 
-- 🔧 Automatically configures GDAL using ⚡precompiled GDAL binaries for Windows x64 from [GISInternals](https://www.gisinternals.com) during the build process using [`gdal-setup`](https://github.com/geocrate/gdal-setup) internally.
+- ⚡ Precompiled GDAL binaries for Windows x64 from [GISInternals](https://www.gisinternals.com).
 - 🦀 Rust bindings to GDAL from [georust/gdal](https://github.com/georust/gdal).
+- 🔧 Automatically configures GDAL using [`gdal-setup`](https://github.com/geocrate/gdal-setup) internally.
 - 🛠️ Simplifies GDAL setup for Rust developers on Windows.
 
 ## 📦 Setup
@@ -50,6 +51,7 @@ fn main() {
     println!("GDAL Version Report:\n{}", report);
 }
 ```
+More Examples: [https://github.com/georust/gdal/tree/master/examples](https://github.com/georust/gdal/tree/master/examples)
 
 ## 🖥️ Compatibility
 

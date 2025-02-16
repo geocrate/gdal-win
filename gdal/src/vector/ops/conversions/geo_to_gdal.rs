@@ -1,6 +1,6 @@
 use crate::errors::*;
 use crate::vector::{Geometry, ToGdal};
-use gdal_bind::OGRwkbGeometryType;
+use crate::gdal_sys::OGRwkbGeometryType;
 use geo_types::CoordFloat;
 
 impl<T> ToGdal for geo_types::Point<T>

@@ -11,7 +11,7 @@ mod transform_opts;
 /// Axis orientation options
 ///
 /// See [`OGRAxisOrientation`](https://gdal.org/api/ogr_srs_api.html#_CPPv418OGRAxisOrientation).
-pub type AxisOrientationType = gdal_bind::OGRAxisOrientation::Type;
+pub type AxisOrientationType = crate::gdal_sys::OGRAxisOrientation::Type;
 
 pub use srs::{AxisMappingStrategy, SpatialRef};
 pub use transform::CoordTransform;

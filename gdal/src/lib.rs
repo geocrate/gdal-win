@@ -132,7 +132,7 @@ pub use options::{DatasetOptions, GdalOpenFlags};
 pub use driver::{Driver, DriverManager, DriverType};
 pub use gcp::{Gcp, GcpRef};
 #[cfg(any(major_ge_4, all(major_is_3, minor_ge_6)))]
-pub use gdal_bind::ArrowArrayStream;
+pub use crate::gdal_sys::ArrowArrayStream;
 pub use metadata::{Metadata, MetadataEntry};
 
 #[cfg(test)]

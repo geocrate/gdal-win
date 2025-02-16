@@ -3,7 +3,7 @@ use std::{
     fmt::{Debug, Display, Formatter},
 };
 
-use gdal_bind::{
+use crate::gdal_sys::{
     GDALAdjustValueToDataType, GDALDataType, GDALDataTypeIsConversionLossy, GDALDataTypeIsFloating,
     GDALDataTypeIsInteger, GDALDataTypeIsSigned, GDALDataTypeUnion, GDALFindDataTypeForValue,
     GDALGetDataTypeByName, GDALGetDataTypeName, GDALGetDataTypeSizeBits, GDALGetDataTypeSizeBytes,
@@ -313,7 +313,7 @@ impl From<AdjustedValue> for f64 {
 ///
 /// See [`GdalDataType`] for access to metadata describing the data type.
 pub trait GdalType {
-    /// Get the [`GDALDataType`] ordinal value used in `gdal_bind` to represent a GDAL cell/pixel
+    /// Get the [`GDALDataType`] ordinal value used in `crate::gdal_sys` to represent a GDAL cell/pixel
     /// data type.
     ///
     /// See also: [GDAL API](https://gdal.org/api/raster_c_api.html#_CPPv412GDALDataType)
@@ -413,7 +413,7 @@ impl GdalType for f64 {
 mod tests {
     use super::*;
     use crate::raster::types::AdjustedValue::{Clamped, Rounded, Unchanged};
-    use gdal_bind::GDALDataType::*;
+    use crate::gdal_sys::GDALDataType::*;
 
     #[test]
     #[allow(non_upper_case_globals)]

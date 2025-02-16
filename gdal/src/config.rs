@@ -26,7 +26,7 @@
 use std::ffi::{c_char, c_void, CString};
 use std::sync::{LazyLock, Mutex};
 
-use gdal_bind::{CPLErr, CPLErrorNum, CPLGetErrorHandlerUserData};
+use crate::gdal_sys::{CPLErr, CPLErrorNum, CPLGetErrorHandlerUserData};
 
 use crate::errors::{CplErrType, Result};
 use crate::utils::_string;
@@ -40,7 +40,7 @@ pub fn set_config_option(key: &str, value: &str) -> Result<()> {
     let c_key = CString::new(key.as_bytes())?;
     let c_val = CString::new(value.as_bytes())?;
     unsafe {
-        gdal_bind::CPLSetConfigOption(c_key.as_ptr(), c_val.as_ptr());
+        crate::gdal_sys::CPLSetConfigOption(c_key.as_ptr(), c_val.as_ptr());
     };
     Ok(())
 }
@@ -54,7 +54,7 @@ pub fn set_config_option(key: &str, value: &str) -> Result<()> {
 pub fn get_config_option(key: &str, default: &str) -> Result<String> {
     let c_key = CString::new(key.as_bytes())?;
     let c_default = CString::new(default.as_bytes())?;
-    let rv = unsafe { gdal_bind::CPLGetConfigOption(c_key.as_ptr(), c_default.as_ptr()) };
+    let rv = unsafe { crate::gdal_sys::CPLGetConfigOption(c_key.as_ptr(), c_default.as_ptr()) };
     Ok(_string(rv).unwrap_or_else(|| default.to_string()))
 }
 
@@ -65,7 +65,7 @@ pub fn get_config_option(key: &str, default: &str) -> Result<String> {
 pub fn clear_config_option(key: &str) -> Result<()> {
     let c_key = CString::new(key.as_bytes())?;
     unsafe {
-        gdal_bind::CPLSetConfigOption(c_key.as_ptr(), ::std::ptr::null());
+        crate::gdal_sys::CPLSetConfigOption(c_key.as_ptr(), ::std::ptr::null());
     };
     Ok(())
 }
@@ -80,7 +80,7 @@ pub fn set_thread_local_config_option(key: &str, value: &str) -> Result<()> {
     let c_key = CString::new(key.as_bytes())?;
     let c_val = CString::new(value.as_bytes())?;
     unsafe {
-        gdal_bind::CPLSetThreadLocalConfigOption(c_key.as_ptr(), c_val.as_ptr());
+        crate::gdal_sys::CPLSetThreadLocalConfigOption(c_key.as_ptr(), c_val.as_ptr());
     };
     Ok(())
 }
@@ -95,7 +95,7 @@ pub fn set_thread_local_config_option(key: &str, value: &str) -> Result<()> {
 pub fn get_thread_local_config_option(key: &str, default: &str) -> Result<String> {
     let c_key = CString::new(key.as_bytes())?;
     let c_default = CString::new(default.as_bytes())?;
-    let rv = unsafe { gdal_bind::CPLGetThreadLocalConfigOption(c_key.as_ptr(), c_default.as_ptr()) };
+    let rv = unsafe { crate::gdal_sys::CPLGetThreadLocalConfigOption(c_key.as_ptr(), c_default.as_ptr()) };
     Ok(_string(rv).unwrap_or_else(|| default.to_string()))
 }
 
@@ -107,7 +107,7 @@ pub fn get_thread_local_config_option(key: &str, default: &str) -> Result<String
 pub fn clear_thread_local_config_option(key: &str) -> Result<()> {
     let c_key = CString::new(key.as_bytes())?;
     unsafe {
-        gdal_bind::CPLSetThreadLocalConfigOption(c_key.as_ptr(), ::std::ptr::null());
+        crate::gdal_sys::CPLSetThreadLocalConfigOption(c_key.as_ptr(), ::std::ptr::null());
     };
     Ok(())
 }
@@ -164,7 +164,7 @@ where
 
     // changing the error callback is fenced by the callback lock
     unsafe {
-        gdal_bind::CPLSetErrorHandlerEx(Some(error_handler), callback_ref as *mut _ as *mut c_void);
+        crate::gdal_sys::CPLSetErrorHandlerEx(Some(error_handler), callback_ref as *mut _ as *mut c_void);
     };
 
     // store callback in static variable so we avoid a dangling pointer
@@ -181,7 +181,7 @@ pub fn remove_error_handler() {
 
     // changing the error callback is fenced by the callback lock
     unsafe {
-        gdal_bind::CPLSetErrorHandler(None);
+        crate::gdal_sys::CPLSetErrorHandler(None);
     };
 
     // drop callback

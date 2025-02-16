@@ -87,7 +87,7 @@ impl HillshadeOptions {
     }
 
     /// Render relevant common options into [`CslStringList`] values, as compatible with
-    /// [`gdal_bind::GDALDEMProcessing`].
+    /// [`crate::gdal_sys::GDALDEMProcessing`].
     pub fn to_options_list(&self) -> errors::Result<CslStringList> {
         let mut opts = CslStringList::default();
 

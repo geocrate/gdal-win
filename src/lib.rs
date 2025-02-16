@@ -1,5 +1,7 @@
 #![allow(warnings)]
 
+pub mod gdal_sys;
+
 #[path = "../gdal/src/programs/mod.rs"]
 pub mod programs;
 

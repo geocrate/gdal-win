@@ -37,7 +37,7 @@ use crate::Dataset;
 
 pub use aspect::*;
 pub use color_relief::*;
-use gdal_bind::{CPLErr, GDALDEMProcessing};
+use crate::gdal_sys::{CPLErr, GDALDEMProcessing};
 pub use hillshade::*;
 pub use options::{DemAlg, DemSlopeAlg};
 pub use roughness::*;

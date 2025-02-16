@@ -5,7 +5,7 @@ use std::{
     ptr::null_mut,
 };
 
-use gdal_bind::{GDALMajorObjectH, OGRErr, OGRFieldDefnH, OGRFieldType, OGRLayerH};
+use crate::gdal_sys::{GDALMajorObjectH, OGRErr, OGRFieldDefnH, OGRFieldType, OGRLayerH};
 
 use crate::errors::*;
 use crate::metadata::Metadata;
@@ -131,7 +131,7 @@ impl<'a> Layer<'a> {
     /// # Safety
     /// This method operates on a raw C pointer
     pub(crate) unsafe fn from_c_layer(_: &'a Dataset, c_layer: OGRLayerH) -> Self {
-        let c_defn = gdal_bind::OGR_L_GetLayerDefn(c_layer);
+        let c_defn = crate::gdal_sys::OGR_L_GetLayerDefn(c_layer);
         let defn = Defn::from_c_defn(c_defn);
         Self {
             c_layer,
@@ -186,7 +186,7 @@ impl OwnedLayer {
     /// # Safety
     /// This method operates on a raw C pointer
     pub(crate) unsafe fn from_c_layer(dataset: Dataset, c_layer: OGRLayerH) -> Self {
-        let c_defn = gdal_bind::OGR_L_GetLayerDefn(c_layer);
+        let c_defn = crate::gdal_sys::OGR_L_GetLayerDefn(c_layer);
         let defn = Defn::from_c_defn(c_defn);
         Self {
             c_layer,
@@ -238,7 +238,7 @@ pub trait LayerAccess: Sized {
     /// feature exists, as a fallback implementation just scans all the features in the layer
     /// looking for the desired feature.
     fn feature(&self, fid: u64) -> Option<Feature> {
-        let c_feature = unsafe { gdal_bind::OGR_L_GetFeature(self.c_layer(), fid as i64) };
+        let c_feature = unsafe { crate::gdal_sys::OGR_L_GetFeature(self.c_layer(), fid as i64) };
         if c_feature.is_null() {
             None
         } else {
@@ -260,7 +260,7 @@ pub trait LayerAccess: Sized {
     ///
     /// See: [SetFeature](https://gdal.org/doxygen/classOGRLayer.html#a681139bfd585b74d7218e51a32144283)
     fn set_feature(&self, feature: Feature) -> Result<()> {
-        unsafe { gdal_bind::OGR_L_SetFeature(self.c_layer(), feature.c_feature()) };
+        unsafe { crate::gdal_sys::OGR_L_SetFeature(self.c_layer(), feature.c_feature()) };
         Ok(())
     }
 
@@ -268,28 +268,28 @@ pub trait LayerAccess: Sized {
     ///
     /// See: [OGR_L_SetSpatialFilter](https://gdal.org/doxygen/classOGRLayer.html#a75c06b4993f8eb76b569f37365cd19ab)
     fn set_spatial_filter(&mut self, geometry: &Geometry) {
-        unsafe { gdal_bind::OGR_L_SetSpatialFilter(self.c_layer(), geometry.c_geometry()) };
+        unsafe { crate::gdal_sys::OGR_L_SetSpatialFilter(self.c_layer(), geometry.c_geometry()) };
     }
 
     /// Set a spatial rectangle filter on this layer by specifying the bounds of a rectangle.
     fn set_spatial_filter_rect(&mut self, min_x: f64, min_y: f64, max_x: f64, max_y: f64) {
-        unsafe { gdal_bind::OGR_L_SetSpatialFilterRect(self.c_layer(), min_x, min_y, max_x, max_y) };
+        unsafe { crate::gdal_sys::OGR_L_SetSpatialFilterRect(self.c_layer(), min_x, min_y, max_x, max_y) };
     }
 
     /// Clear spatial filters set on this layer.
     fn clear_spatial_filter(&mut self) {
-        unsafe { gdal_bind::OGR_L_SetSpatialFilter(self.c_layer(), null_mut()) };
+        unsafe { crate::gdal_sys::OGR_L_SetSpatialFilter(self.c_layer(), null_mut()) };
     }
 
     /// Get the name of this layer.
     fn name(&self) -> String {
-        let rv = unsafe { gdal_bind::OGR_L_GetName(self.c_layer()) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_GetName(self.c_layer()) };
         _string(rv).unwrap_or_default()
     }
 
     fn has_capability(&self, capability: LayerCaps) -> bool {
         unsafe {
-            gdal_bind::OGR_L_TestCapability(self.c_layer(), capability.into_cstring().as_ptr()) == 1
+            crate::gdal_sys::OGR_L_TestCapability(self.c_layer(), capability.into_cstring().as_ptr()) == 1
         }
     }
 
@@ -304,14 +304,14 @@ pub trait LayerAccess: Sized {
         let feature = Feature::new(self.defn())?;
 
         let c_geometry = unsafe { geometry.into_c_geometry() };
-        let rv = unsafe { gdal_bind::OGR_F_SetGeometryDirectly(feature.c_feature(), c_geometry) };
+        let rv = unsafe { crate::gdal_sys::OGR_F_SetGeometryDirectly(feature.c_feature(), c_geometry) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
                 method_name: "OGR_F_SetGeometryDirectly",
             });
         }
-        let rv = unsafe { gdal_bind::OGR_L_CreateFeature(self.c_layer(), feature.c_feature()) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_CreateFeature(self.c_layer(), feature.c_feature()) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -328,7 +328,7 @@ pub trait LayerAccess: Sized {
     /// The returned count takes the [spatial filter](`Layer::set_spatial_filter`) into account.
     /// For dynamic databases the count may not be exact.
     fn feature_count(&self) -> u64 {
-        (unsafe { gdal_bind::OGR_L_GetFeatureCount(self.c_layer(), 1) }) as u64
+        (unsafe { crate::gdal_sys::OGR_L_GetFeatureCount(self.c_layer(), 1) }) as u64
     }
 
     /// Returns the number of features in this layer, if it is possible to compute this
@@ -340,7 +340,7 @@ pub trait LayerAccess: Sized {
     /// The returned count takes the [spatial filter](`Layer::set_spatial_filter`) into account.
     /// For dynamic databases the count may not be exact.
     fn try_feature_count(&self) -> Option<u64> {
-        let rv = unsafe { gdal_bind::OGR_L_GetFeatureCount(self.c_layer(), 0) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_GetFeatureCount(self.c_layer(), 0) };
         if rv < 0 {
             None
         } else {
@@ -362,7 +362,7 @@ pub trait LayerAccess: Sized {
     fn get_extent(&self) -> Result<Envelope> {
         let mut envelope = MaybeUninit::uninit();
         let force = 1;
-        let rv = unsafe { gdal_bind::OGR_L_GetExtent(self.c_layer(), envelope.as_mut_ptr(), force) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_GetExtent(self.c_layer(), envelope.as_mut_ptr(), force) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -384,7 +384,7 @@ pub trait LayerAccess: Sized {
     fn try_get_extent(&self) -> Result<Option<Envelope>> {
         let mut envelope = MaybeUninit::uninit();
         let force = 0;
-        let rv = unsafe { gdal_bind::OGR_L_GetExtent(self.c_layer(), envelope.as_mut_ptr(), force) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_GetExtent(self.c_layer(), envelope.as_mut_ptr(), force) };
         if rv == OGRErr::OGRERR_FAILURE {
             Ok(None)
         } else {
@@ -404,7 +404,7 @@ pub trait LayerAccess: Sized {
     ///
     /// See: [OGR_L_GetSpatialRef](https://gdal.org/doxygen/classOGRLayer.html#a75c06b4993f8eb76b569f37365cd19ab)
     fn spatial_ref(&self) -> Option<SpatialRef> {
-        let c_obj = unsafe { gdal_bind::OGR_L_GetSpatialRef(self.c_layer()) };
+        let c_obj = unsafe { crate::gdal_sys::OGR_L_GetSpatialRef(self.c_layer()) };
         if c_obj.is_null() {
             None
         } else {
@@ -414,7 +414,7 @@ pub trait LayerAccess: Sized {
 
     fn reset_feature_reading(&mut self) {
         unsafe {
-            gdal_bind::OGR_L_ResetReading(self.c_layer());
+            crate::gdal_sys::OGR_L_ResetReading(self.c_layer());
         }
     }
 
@@ -427,7 +427,7 @@ pub trait LayerAccess: Sized {
     ///
     fn set_attribute_filter(&mut self, query: &str) -> Result<()> {
         let c_str = CString::new(query)?;
-        let rv = unsafe { gdal_bind::OGR_L_SetAttributeFilter(self.c_layer(), c_str.as_ptr()) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_SetAttributeFilter(self.c_layer(), c_str.as_ptr()) };
 
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
@@ -445,7 +445,7 @@ pub trait LayerAccess: Sized {
     ///
     fn clear_attribute_filter(&mut self) {
         unsafe {
-            gdal_bind::OGR_L_SetAttributeFilter(self.c_layer(), null_mut());
+            crate::gdal_sys::OGR_L_SetAttributeFilter(self.c_layer(), null_mut());
         }
     }
 
@@ -472,14 +472,14 @@ pub trait LayerAccess: Sized {
     #[cfg(any(major_ge_4, all(major_is_3, minor_ge_6)))]
     unsafe fn read_arrow_stream(
         &mut self,
-        out_stream: *mut gdal_bind::ArrowArrayStream,
+        out_stream: *mut crate::gdal_sys::ArrowArrayStream,
         options: &crate::cpl::CslStringList,
     ) -> Result<()> {
         self.reset_feature_reading();
 
         unsafe {
             let success =
-                gdal_bind::OGR_L_GetArrowStream(self.c_layer(), out_stream, options.as_ptr());
+                crate::gdal_sys::OGR_L_GetArrowStream(self.c_layer(), out_stream, options.as_ptr());
             if !success {
                 return Err(GdalError::OgrError {
                     err: 1,
@@ -507,7 +507,7 @@ impl<'a> Iterator for LayerIterator<'a> {
         if idx < self.count {
             self.idx += 1;
             let c_layer =
-                unsafe { gdal_bind::GDALDatasetGetLayer(self.dataset.c_dataset(), idx as c_int) };
+                unsafe { crate::gdal_sys::GDALDatasetGetLayer(self.dataset.c_dataset(), idx as c_int) };
             if !c_layer.is_null() {
                 let layer = unsafe { Layer::from_c_layer(self.dataset, c_layer) };
                 return Some(layer);
@@ -537,7 +537,7 @@ pub struct FieldDefn {
 
 impl Drop for FieldDefn {
     fn drop(&mut self) {
-        unsafe { gdal_bind::OGR_Fld_Destroy(self.c_obj) };
+        unsafe { crate::gdal_sys::OGR_Fld_Destroy(self.c_obj) };
     }
 }
 
@@ -550,20 +550,20 @@ impl MajorObject for FieldDefn {
 impl FieldDefn {
     pub fn new(name: &str, field_type: OGRFieldType::Type) -> Result<FieldDefn> {
         let c_str = CString::new(name)?;
-        let c_obj = unsafe { gdal_bind::OGR_Fld_Create(c_str.as_ptr(), field_type) };
+        let c_obj = unsafe { crate::gdal_sys::OGR_Fld_Create(c_str.as_ptr(), field_type) };
         if c_obj.is_null() {
             return Err(_last_null_pointer_err("OGR_Fld_Create"));
         };
         Ok(FieldDefn { c_obj })
     }
     pub fn set_width(&self, width: i32) {
-        unsafe { gdal_bind::OGR_Fld_SetWidth(self.c_obj, width as c_int) };
+        unsafe { crate::gdal_sys::OGR_Fld_SetWidth(self.c_obj, width as c_int) };
     }
     pub fn set_precision(&self, precision: i32) {
-        unsafe { gdal_bind::OGR_Fld_SetPrecision(self.c_obj, precision as c_int) };
+        unsafe { crate::gdal_sys::OGR_Fld_SetPrecision(self.c_obj, precision as c_int) };
     }
     pub fn add_to_layer<L: LayerAccess>(&self, layer: &L) -> Result<()> {
-        let rv = unsafe { gdal_bind::OGR_L_CreateField(layer.c_layer(), self.c_obj, 1) };
+        let rv = unsafe { crate::gdal_sys::OGR_L_CreateField(layer.c_layer(), self.c_obj, 1) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,
@@ -586,7 +586,7 @@ impl Dataset {
 
     /// Get the number of layers in this dataset.
     pub fn layer_count(&self) -> usize {
-        (unsafe { gdal_bind::GDALDatasetGetLayerCount(self.c_dataset()) }) as usize
+        (unsafe { crate::gdal_sys::GDALDatasetGetLayerCount(self.c_dataset()) }) as usize
     }
 
     /// Fetch a layer by index.
@@ -595,7 +595,7 @@ impl Dataset {
     /// _0-based_ index.
     pub fn layer(&self, idx: usize) -> Result<Layer> {
         let idx = c_int::try_from(idx)?;
-        let c_layer = unsafe { gdal_bind::GDALDatasetGetLayer(self.c_dataset(), idx) };
+        let c_layer = unsafe { crate::gdal_sys::GDALDatasetGetLayer(self.c_dataset(), idx) };
         if c_layer.is_null() {
             return Err(_last_null_pointer_err("GDALDatasetGetLayer"));
         }
@@ -608,7 +608,7 @@ impl Dataset {
     /// _0-based_ index.
     pub fn into_layer(self, idx: usize) -> Result<OwnedLayer> {
         let idx = c_int::try_from(idx)?;
-        let c_layer = unsafe { gdal_bind::GDALDatasetGetLayer(self.c_dataset(), idx) };
+        let c_layer = unsafe { crate::gdal_sys::GDALDatasetGetLayer(self.c_dataset(), idx) };
         if c_layer.is_null() {
             return Err(_last_null_pointer_err("GDALDatasetGetLayer"));
         }
@@ -619,7 +619,7 @@ impl Dataset {
     pub fn layer_by_name(&self, name: &str) -> Result<Layer> {
         let c_name = CString::new(name)?;
         let c_layer =
-            unsafe { gdal_bind::GDALDatasetGetLayerByName(self.c_dataset(), c_name.as_ptr()) };
+            unsafe { crate::gdal_sys::GDALDatasetGetLayerByName(self.c_dataset(), c_name.as_ptr()) };
         if c_layer.is_null() {
             return Err(_last_null_pointer_err("GDALDatasetGetLayerByName"));
         }
@@ -630,7 +630,7 @@ impl Dataset {
     pub fn into_layer_by_name(self, name: &str) -> Result<OwnedLayer> {
         let c_name = CString::new(name)?;
         let c_layer =
-            unsafe { gdal_bind::GDALDatasetGetLayerByName(self.c_dataset(), c_name.as_ptr()) };
+            unsafe { crate::gdal_sys::GDALDatasetGetLayerByName(self.c_dataset(), c_name.as_ptr()) };
         if c_layer.is_null() {
             return Err(_last_null_pointer_err("GDALDatasetGetLayerByName"));
         }
@@ -667,7 +667,7 @@ impl Dataset {
     /// let roads = dataset.create_layer(LayerOptions {
     ///     name: "roads",
     ///     srs: Some(&SpatialRef::from_epsg(4326).unwrap()),
-    ///     ty: gdal_bind::OGRwkbGeometryType::wkbLineString,
+    ///     ty: crate::gdal_sys::OGRwkbGeometryType::wkbLineString,
     ///     ..Default::default()
     /// }).unwrap();
     /// ```
@@ -700,9 +700,9 @@ impl Dataset {
 
         let c_layer = unsafe {
             // The C function takes `char **papszOptions` without mention of `const`, and this is
-            // propagated to the gdal_bind wrapper. The lack of `const` seems like a mistake in the
+            // propagated to the crate::gdal_sys wrapper. The lack of `const` seems like a mistake in the
             // GDAL API, so we just do a cast here.
-            gdal_bind::GDALDatasetCreateLayer(
+            crate::gdal_sys::GDALDatasetCreateLayer(
                 self.c_dataset(),
                 c_name.as_ptr(),
                 c_srs,
@@ -729,7 +729,7 @@ impl Dataset {
     /// ```
     pub fn delete_layer(&mut self, idx: usize) -> Result<()> {
         let idx = c_int::try_from(idx)?;
-        let err = unsafe { gdal_bind::GDALDatasetDeleteLayer(self.c_dataset(), idx) };
+        let err = unsafe { crate::gdal_sys::GDALDatasetDeleteLayer(self.c_dataset(), idx) };
         if err != OGRErr::OGRERR_NONE {
             Err(GdalError::OgrError {
                 err,
@@ -750,7 +750,7 @@ mod tests {
     use crate::vector::feature::FeatureIterator;
     use crate::vector::FieldValue;
     use crate::{assert_almost_eq, Dataset, DriverManager, GdalOpenFlags};
-    use gdal_bind::OGRwkbGeometryType;
+    use crate::gdal_sys::OGRwkbGeometryType;
 
     fn ds_with_layer<F>(ds_name: &str, layer_name: &str, f: F)
     where
@@ -795,7 +795,7 @@ mod tests {
 
     #[test]
     fn test_create_layer_options() {
-        use gdal_bind::OGRwkbGeometryType::wkbPoint;
+        use crate::gdal_sys::OGRwkbGeometryType::wkbPoint;
         let (_temp_path, mut ds) = open_gpkg_for_update(&fixture("poly.gpkg"));
         let mut options = LayerOptions {
             name: "new",
@@ -1360,7 +1360,7 @@ mod tests {
             let mut layer = ds.layer(0).unwrap();
             assert_eq!(
                 layer.defn.geometry_type(),
-                gdal_bind::OGRwkbGeometryType::wkbPoint
+                crate::gdal_sys::OGRwkbGeometryType::wkbPoint
             );
             let ft = layer.features().next().unwrap();
             assert_eq!(ft.geometry().unwrap().wkt().unwrap(), "POINT (1 2)");
@@ -1426,7 +1426,7 @@ mod tests {
                 assert!(matches!(
                     layer.set_attribute_filter("foo = bar").unwrap_err(),
                     GdalError::OgrError {
-                        err: gdal_bind::OGRErr::OGRERR_CORRUPT_DATA,
+                        err: crate::gdal_sys::OGRErr::OGRERR_CORRUPT_DATA,
                         method_name: "OGR_L_SetAttributeFilter",
                     }
                 ));

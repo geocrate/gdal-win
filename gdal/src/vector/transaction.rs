@@ -1,6 +1,6 @@
 use crate::errors::{GdalError, Result};
 use crate::Dataset;
-use gdal_bind::OGRErr;
+use crate::gdal_sys::OGRErr;
 use std::ops::{Deref, DerefMut};
 
 /// Represents an in-flight transaction on a dataset.
@@ -46,7 +46,7 @@ impl<'a> Transaction<'a> {
     ///
     /// Depending on drivers, this may or may not abort layer sequential readings that are active.
     pub fn commit(mut self) -> Result<()> {
-        let rv = unsafe { gdal_bind::GDALDatasetCommitTransaction(self.dataset.c_dataset()) };
+        let rv = unsafe { crate::gdal_sys::GDALDatasetCommitTransaction(self.dataset.c_dataset()) };
         self.rollback_on_drop = false;
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
@@ -61,7 +61,7 @@ impl<'a> Transaction<'a> {
     ///
     /// If the rollback fails, will return [`OGRErr::OGRERR_FAILURE`].
     pub fn rollback(mut self) -> Result<()> {
-        let rv = unsafe { gdal_bind::GDALDatasetRollbackTransaction(self.dataset.c_dataset()) };
+        let rv = unsafe { crate::gdal_sys::GDALDatasetRollbackTransaction(self.dataset.c_dataset()) };
         self.rollback_on_drop = false;
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
@@ -92,7 +92,7 @@ impl Drop for Transaction<'_> {
         if self.rollback_on_drop {
             // We silently swallow any errors, because we have no way to report them from a drop
             // function apart from panicking.
-            unsafe { gdal_bind::GDALDatasetRollbackTransaction(self.dataset.c_dataset()) };
+            unsafe { crate::gdal_sys::GDALDatasetRollbackTransaction(self.dataset.c_dataset()) };
         }
     }
 }
@@ -143,7 +143,7 @@ impl Dataset {
     ///
     ///     let mut layer = txn.create_layer(LayerOptions {
     ///         name: "grid",
-    ///         ty: gdal_bind::OGRwkbGeometryType::wkbPoint,
+    ///         ty: crate::gdal_sys::OGRwkbGeometryType::wkbPoint,
     ///         ..Default::default()
     ///     })?;
     ///     for y in 0..100 {
@@ -168,7 +168,7 @@ impl Dataset {
     /// ```
     pub fn start_transaction(&mut self) -> Result<Transaction<'_>> {
         let force = 1;
-        let rv = unsafe { gdal_bind::GDALDatasetStartTransaction(self.c_dataset(), force) };
+        let rv = unsafe { crate::gdal_sys::GDALDatasetStartTransaction(self.c_dataset(), force) };
         if rv != OGRErr::OGRERR_NONE {
             return Err(GdalError::OgrError {
                 err: rv,

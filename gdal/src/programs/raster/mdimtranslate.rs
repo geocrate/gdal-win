@@ -6,7 +6,7 @@ use std::{
     ptr::{null, null_mut},
 };
 
-use gdal_bind::{GDALMultiDimTranslate, GDALMultiDimTranslateOptions};
+use crate::gdal_sys::{GDALMultiDimTranslate, GDALMultiDimTranslateOptions};
 
 use crate::{
     errors::*,
@@ -47,7 +47,7 @@ impl MultiDimTranslateOptions {
 
         unsafe {
             Ok(Self {
-                c_options: gdal_bind::GDALMultiDimTranslateOptionsNew(
+                c_options: crate::gdal_sys::GDALMultiDimTranslateOptionsNew(
                     c_args.as_mut_ptr(),
                     null_mut(),
                 ),
@@ -68,7 +68,7 @@ impl MultiDimTranslateOptions {
 impl Drop for MultiDimTranslateOptions {
     fn drop(&mut self) {
         unsafe {
-            gdal_bind::GDALMultiDimTranslateOptionsFree(self.c_options);
+            crate::gdal_sys::GDALMultiDimTranslateOptionsFree(self.c_options);
         }
     }
 }
@@ -189,7 +189,7 @@ fn _multi_dim_translate(
 
     let psz_dest = psz_dest_option.map(|x| x.as_ptr()).unwrap_or_else(null);
 
-    let mut pah_src_ds: Vec<gdal_bind::GDALDatasetH> = input.iter().map(|x| x.c_dataset()).collect();
+    let mut pah_src_ds: Vec<crate::gdal_sys::GDALDatasetH> = input.iter().map(|x| x.c_dataset()).collect();
 
     let ps_options = options
         .as_ref()

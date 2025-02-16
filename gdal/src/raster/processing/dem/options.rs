@@ -2,7 +2,7 @@ use std::num::NonZeroUsize;
 use std::ptr;
 use std::ptr::NonNull;
 
-use gdal_bind::{
+use crate::gdal_sys::{
     GDALDEMProcessingOptions, GDALDEMProcessingOptionsFree, GDALDEMProcessingOptionsNew,
 };
 
@@ -35,7 +35,7 @@ impl Drop for GdalDEMProcessingOptions {
     }
 }
 
-/// DEM processor mode, to stringify and pass to [`gdal_bind::GDALDEMProcessing`].
+/// DEM processor mode, to stringify and pass to [`crate::gdal_sys::GDALDEMProcessing`].
 #[derive(Debug, Clone, Copy)]
 pub enum DemAlg {
     /// Computes the azimuth that the slopes in some DEM data are facing.

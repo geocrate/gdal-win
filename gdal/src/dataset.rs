@@ -4,7 +4,7 @@ use std::{
     ptr,
 };
 
-use gdal_bind::{CPLErr, GDALDatasetH, GDALMajorObjectH};
+use crate::gdal_sys::{CPLErr, GDALDatasetH, GDALMajorObjectH};
 
 use crate::cpl::CslStringList;
 use crate::errors::*;
@@ -71,7 +71,7 @@ impl Dataset {
     ///
     /// # Safety
     /// This method operates on a raw C pointer
-    /// The dataset must not have been closed (using [`gdal_bind::GDALClose`]) before.
+    /// The dataset must not have been closed (using [`crate::gdal_sys::GDALClose`]) before.
     pub unsafe fn from_c_dataset(c_dataset: GDALDatasetH) -> Dataset {
         Dataset {
             c_dataset,
@@ -169,7 +169,7 @@ impl Dataset {
         };
 
         let c_dataset = unsafe {
-            gdal_bind::GDALOpenEx(
+            crate::gdal_sys::GDALOpenEx(
                 c_filename.as_ptr(),
                 c_open_flags,
                 c_drivers_ptr,
@@ -188,13 +188,13 @@ impl Dataset {
 
     /// Flush all write cached data to disk.
     ///
-    /// See [`gdal_bind::GDALFlushCache`].
+    /// See [`crate::gdal_sys::GDALFlushCache`].
     ///
     /// Note: on GDAL versions older than 3.7, this function always succeeds.
     pub fn flush_cache(&mut self) -> Result<()> {
         #[cfg(any(all(major_ge_3, minor_ge_7), major_ge_4))]
         {
-            let rv = unsafe { gdal_bind::GDALFlushCache(self.c_dataset) };
+            let rv = unsafe { crate::gdal_sys::GDALFlushCache(self.c_dataset) };
             if rv != CPLErr::CE_None {
                 return Err(_last_cpl_err(rv));
             }
@@ -202,7 +202,7 @@ impl Dataset {
         #[cfg(not(any(all(major_is_3, minor_ge_7), major_ge_4)))]
         {
             unsafe {
-                gdal_bind::GDALFlushCache(self.c_dataset);
+                crate::gdal_sys::GDALFlushCache(self.c_dataset);
             }
         }
         Ok(())
@@ -210,7 +210,7 @@ impl Dataset {
 
     /// Close the dataset.
     ///
-    /// See [`gdal_bind::GDALClose`].
+    /// See [`crate::gdal_sys::GDALClose`].
     ///
     /// Note: on GDAL versions older than 3.7.0, this function always succeeds.
     pub fn close(mut self) -> Result<()> {
@@ -218,7 +218,7 @@ impl Dataset {
 
         #[cfg(any(all(major_ge_3, minor_ge_7), major_ge_4))]
         {
-            let rv = unsafe { gdal_bind::GDALClose(self.c_dataset) };
+            let rv = unsafe { crate::gdal_sys::GDALClose(self.c_dataset) };
             if rv != CPLErr::CE_None {
                 return Err(_last_cpl_err(rv));
             }
@@ -226,7 +226,7 @@ impl Dataset {
         #[cfg(not(any(all(major_is_3, minor_ge_7), major_ge_4)))]
         {
             unsafe {
-                gdal_bind::GDALClose(self.c_dataset);
+                crate::gdal_sys::GDALClose(self.c_dataset);
             }
         }
         Ok(())
@@ -234,21 +234,21 @@ impl Dataset {
 
     /// Fetch the projection definition string for this dataset.
     pub fn projection(&self) -> String {
-        let rv = unsafe { gdal_bind::GDALGetProjectionRef(self.c_dataset) };
+        let rv = unsafe { crate::gdal_sys::GDALGetProjectionRef(self.c_dataset) };
         _string(rv).unwrap_or_default()
     }
 
     /// Set the projection reference string for this dataset.
     pub fn set_projection(&mut self, projection: &str) -> Result<()> {
         let c_projection = CString::new(projection)?;
-        unsafe { gdal_bind::GDALSetProjection(self.c_dataset, c_projection.as_ptr()) };
+        unsafe { crate::gdal_sys::GDALSetProjection(self.c_dataset, c_projection.as_ptr()) };
         Ok(())
     }
 
     /// Get the spatial reference system for this dataset.
     pub fn spatial_ref(&self) -> Result<SpatialRef> {
         unsafe {
-            let spatial_ref = gdal_bind::GDALGetSpatialRef(self.c_dataset);
+            let spatial_ref = crate::gdal_sys::GDALGetSpatialRef(self.c_dataset);
             if spatial_ref.is_null() {
                 Err(GdalError::NullPointer {
                     method_name: "GDALGetSpatialRef",
@@ -262,7 +262,7 @@ impl Dataset {
 
     /// Set the spatial reference system for this dataset.
     pub fn set_spatial_ref(&mut self, spatial_ref: &SpatialRef) -> Result<()> {
-        let rv = unsafe { gdal_bind::GDALSetSpatialRef(self.c_dataset, spatial_ref.to_c_hsrs()) };
+        let rv = unsafe { crate::gdal_sys::GDALSetSpatialRef(self.c_dataset, spatial_ref.to_c_hsrs()) };
         if rv != CPLErr::CE_None {
             return Err(_last_cpl_err(rv));
         }
@@ -284,7 +284,7 @@ impl Dataset {
             let c_filename = _path_to_c_string(filename)?;
 
             let c_dataset = unsafe {
-                gdal_bind::GDALCreateCopy(
+                crate::gdal_sys::GDALCreateCopy(
                     driver.c_driver(),
                     c_filename.as_ptr(),
                     ds.c_dataset,
@@ -305,7 +305,7 @@ impl Dataset {
     /// Fetch the driver to which this dataset relates.
     pub fn driver(&self) -> Driver {
         unsafe {
-            let c_driver = gdal_bind::GDALGetDatasetDriver(self.c_dataset);
+            let c_driver = crate::gdal_sys::GDALGetDatasetDriver(self.c_dataset);
             Driver::from_c_driver(c_driver)
         }
     }
@@ -326,7 +326,7 @@ impl Dataset {
     pub fn set_geo_transform(&mut self, transformation: &GeoTransform) -> Result<()> {
         assert_eq!(transformation.len(), 6);
         let rv = unsafe {
-            gdal_bind::GDALSetGeoTransform(self.c_dataset, transformation.as_ptr() as *mut f64)
+            crate::gdal_sys::GDALSetGeoTransform(self.c_dataset, transformation.as_ptr() as *mut f64)
         };
         if rv != CPLErr::CE_None {
             return Err(_last_cpl_err(rv));
@@ -346,7 +346,7 @@ impl Dataset {
     pub fn geo_transform(&self) -> Result<GeoTransform> {
         let mut transformation = GeoTransform::default();
         let rv =
-            unsafe { gdal_bind::GDALGetGeoTransform(self.c_dataset, transformation.as_mut_ptr()) };
+            unsafe { crate::gdal_sys::GDALGetGeoTransform(self.c_dataset, transformation.as_mut_ptr()) };
 
         // check if the dataset has a GeoTransform
         if rv != CPLErr::CE_None {
@@ -356,7 +356,7 @@ impl Dataset {
     }
 
     pub fn has_capability(&self, capability: DatasetCapability) -> bool {
-        unsafe { gdal_bind::GDALDatasetTestCapability(self.c_dataset(), capability.0.as_ptr()) == 1 }
+        unsafe { crate::gdal_sys::GDALDatasetTestCapability(self.c_dataset(), capability.0.as_ptr()) == 1 }
     }
 }
 
@@ -372,7 +372,7 @@ impl Drop for Dataset {
     fn drop(&mut self) {
         if !self.closed {
             unsafe {
-                gdal_bind::GDALClose(self.c_dataset);
+                crate::gdal_sys::GDALClose(self.c_dataset);
             }
         }
     }
@@ -380,7 +380,7 @@ impl Drop for Dataset {
 
 #[cfg(test)]
 mod tests {
-    use gdal_bind::GDALAccess;
+    use crate::gdal_sys::GDALAccess;
 
     use crate::dataset::DatasetCapability;
     use crate::test_utils::{fixture, open_gpkg_for_update};

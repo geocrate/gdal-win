@@ -109,7 +109,7 @@ impl GeoTransformEx for GeoTransform {
         let mut geo_x = MaybeUninit::<f64>::uninit();
         let mut geo_y = MaybeUninit::<f64>::uninit();
         unsafe {
-            gdal_bind::GDALApplyGeoTransform(
+            crate::gdal_sys::GDALApplyGeoTransform(
                 self.as_ptr() as *mut f64,
                 pixel,
                 line,
@@ -123,7 +123,7 @@ impl GeoTransformEx for GeoTransform {
     fn invert(&self) -> errors::Result<GeoTransform> {
         let mut gt_out = MaybeUninit::<GeoTransform>::uninit();
         let rv = unsafe {
-            gdal_bind::GDALInvGeoTransform(
+            crate::gdal_sys::GDALInvGeoTransform(
                 self.as_ptr() as *mut f64,
                 (*gt_out.as_mut_ptr()).as_mut_ptr(),
             )

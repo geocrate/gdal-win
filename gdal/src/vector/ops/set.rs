@@ -33,7 +33,7 @@ impl Geometry {
             return None;
         }
         let ogr_geom =
-            unsafe { gdal_bind::OGR_G_Intersection(self.c_geometry(), other.c_geometry()) };
+            unsafe { crate::gdal_sys::OGR_G_Intersection(self.c_geometry(), other.c_geometry()) };
         if ogr_geom.is_null() {
             return None;
         }
@@ -67,7 +67,7 @@ impl Geometry {
             return None;
         }
         unsafe {
-            let ogr_geom = gdal_bind::OGR_G_Union(self.c_geometry(), other.c_geometry());
+            let ogr_geom = crate::gdal_sys::OGR_G_Union(self.c_geometry(), other.c_geometry());
             if ogr_geom.is_null() {
                 return None;
             }
@@ -102,7 +102,7 @@ impl Geometry {
             return None;
         }
         unsafe {
-            let ogr_geom = gdal_bind::OGR_G_Difference(self.c_geometry(), other.c_geometry());
+            let ogr_geom = crate::gdal_sys::OGR_G_Difference(self.c_geometry(), other.c_geometry());
             if ogr_geom.is_null() {
                 return None;
             }

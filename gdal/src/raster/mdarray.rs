@@ -3,7 +3,7 @@ use std::{
     fmt::{Debug, Display},
 };
 
-use gdal_bind::{
+use crate::gdal_sys::{
     CPLErr, CSLDestroy, GDALAttributeGetDataType, GDALAttributeGetDimensionsSize, GDALAttributeH,
     GDALAttributeReadAsDouble, GDALAttributeReadAsDoubleArray, GDALAttributeReadAsInt,
     GDALAttributeReadAsIntArray, GDALAttributeReadAsString, GDALAttributeReadAsStringArray,
@@ -165,7 +165,7 @@ impl<'a> MDArray<'a> {
 
             let data_type = GDALExtendedDataTypeCreate(T::gdal_ordinal());
 
-            let rv = gdal_bind::GDALMDArrayRead(
+            let rv = crate::gdal_sys::GDALMDArrayRead(
                 self.c_mdarray,
                 array_start_index.as_ptr(),
                 count.as_ptr(),
@@ -309,7 +309,7 @@ impl<'a> MDArray<'a> {
         unsafe {
             let data_type = GDALMDArrayGetDataType(self.c_mdarray);
 
-            let rv = gdal_bind::GDALMDArrayRead(
+            let rv = crate::gdal_sys::GDALMDArrayRead(
                 self.c_mdarray,
                 array_start_index.as_ptr(),
                 count.as_ptr(),
@@ -421,7 +421,7 @@ impl<'a> MDArray<'a> {
         };
 
         let rv = unsafe {
-            gdal_bind::GDALMDArrayGetStatistics(
+            crate::gdal_sys::GDALMDArrayGetStatistics(
                 self.c_mdarray,
                 self.c_dataset,
                 c_int::from(is_approx_ok),
@@ -826,7 +826,7 @@ impl Dataset {
     ///
     pub fn root_group(&self) -> Result<Group> {
         unsafe {
-            let c_group = gdal_bind::GDALDatasetGetRootGroup(self.c_dataset());
+            let c_group = crate::gdal_sys::GDALDatasetGetRootGroup(self.c_dataset());
             if c_group.is_null() {
                 return Err(_last_null_pointer_err("GDALDatasetGetRootGroup"));
             }

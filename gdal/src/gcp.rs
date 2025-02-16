@@ -3,7 +3,7 @@
 use std::ffi::{CStr, CString};
 use std::marker::PhantomData;
 
-use gdal_bind::CPLErr;
+use crate::gdal_sys::CPLErr;
 
 use crate::errors::Result;
 use crate::spatial_ref::SpatialRef;
@@ -33,8 +33,8 @@ pub struct Gcp {
 #[derive(Clone, Debug)]
 #[repr(transparent)]
 pub struct GcpRef<'a> {
-    inner: gdal_bind::GDAL_GCP,
-    _phantom: PhantomData<&'a gdal_bind::GDAL_GCP>,
+    inner: crate::gdal_sys::GDAL_GCP,
+    _phantom: PhantomData<&'a crate::gdal_sys::GDAL_GCP>,
 }
 
 impl GcpRef<'_> {
@@ -78,8 +78,8 @@ impl GcpRef<'_> {
     }
 }
 
-impl From<&gdal_bind::GDAL_GCP> for Gcp {
-    fn from(gcp: &gdal_bind::GDAL_GCP) -> Self {
+impl From<&crate::gdal_sys::GDAL_GCP> for Gcp {
+    fn from(gcp: &crate::gdal_sys::GDAL_GCP) -> Self {
         Gcp {
             // This seems to never be NULL
             id: _string(gcp.pszId).unwrap_or_default(),
@@ -117,7 +117,7 @@ impl Dataset {
     ///
     /// See: [`GDALGetGCPSpatialRef`](https://gdal.org/api/raster_c_api.html#_CPPv420GDALGetGCPSpatialRef12GDALDatasetH)
     pub fn gcp_spatial_ref(&self) -> Option<SpatialRef> {
-        let c_ptr = unsafe { gdal_bind::GDALGetGCPSpatialRef(self.c_dataset()) };
+        let c_ptr = unsafe { crate::gdal_sys::GDALGetGCPSpatialRef(self.c_dataset()) };
 
         if c_ptr.is_null() {
             return None;
@@ -134,7 +134,7 @@ impl Dataset {
     ///
     ///  See: [`GDALGetGCPProjection`](https://gdal.org/api/raster_c_api.html#gdal_8h_1a85ffa184d3ecb7c0a59a66096b22b2ec)
     pub fn gcp_projection(&self) -> Option<String> {
-        let cc_ptr = unsafe { gdal_bind::GDALGetGCPProjection(self.c_dataset()) };
+        let cc_ptr = unsafe { crate::gdal_sys::GDALGetGCPProjection(self.c_dataset()) };
         _string(cc_ptr)
     }
 
@@ -142,12 +142,12 @@ impl Dataset {
     ///
     /// See: [`GDALDataset::GetGCPs`](https://gdal.org/api/gdaldataset_cpp.html#_CPPv4N11GDALDataset7GetGCPsEv)
     pub fn gcps(&self) -> &[GcpRef] {
-        let len = unsafe { gdal_bind::GDALGetGCPCount(self.c_dataset()) };
+        let len = unsafe { crate::gdal_sys::GDALGetGCPCount(self.c_dataset()) };
         if len == 0 {
             return &[];
         }
 
-        let data = unsafe { gdal_bind::GDALGetGCPs(self.c_dataset()) };
+        let data = unsafe { crate::gdal_sys::GDALGetGCPs(self.c_dataset()) };
         unsafe { std::slice::from_raw_parts(data as *const GcpRef, len as usize) }
     }
 
@@ -194,7 +194,7 @@ impl Dataset {
             .unwrap();
         let gdal_gcps = c_gcps
             .iter()
-            .map(|gcp| gdal_bind::GDAL_GCP {
+            .map(|gcp| crate::gdal_sys::GDAL_GCP {
                 pszId: gcp.id.as_ptr() as *mut _,
                 pszInfo: gcp.info.as_ptr() as *mut _,
                 dfGCPPixel: gcp.pixel,
@@ -206,7 +206,7 @@ impl Dataset {
             .collect::<Vec<_>>();
 
         let rv = unsafe {
-            gdal_bind::GDALSetGCPs2(
+            crate::gdal_sys::GDALSetGCPs2(
                 self.c_dataset(),
                 len,
                 gdal_gcps.as_ptr(),

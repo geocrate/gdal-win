@@ -1,5 +1,5 @@
 use crate::spatial_ref::SpatialRef;
-use gdal_bind::OGRwkbGeometryType;
+use crate::gdal_sys::OGRwkbGeometryType;
 
 /// Parameters for [`crate::Dataset::create_layer`].
 #[derive(Clone, Debug)]

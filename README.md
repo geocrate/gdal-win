@@ -2,7 +2,7 @@
 
 **🗺️ GDAL for Rust / Windows 🎯**
 
-`gdal-win` configures prebuilt GDAL libraries and bindings for Rust development on Windows. It automatically sets up GDAL binaries obtained from GISInternals [GISInternals](https://www.gisinternals.com) and utilizes the GDAL Rust wrapper / bindings from [georust/gdal](https://github.com/georust/gdal).
+`gdal-win` configures prebuilt GDAL libraries and bindings for Rust development on Windows. It automatically sets up GDAL binaries obtained from [GISInternals](https://www.gisinternals.com) and utilizes the GDAL Rust wrapper / bindings from [georust/gdal](https://github.com/georust/gdal).
 
 ## ✨ Features
 

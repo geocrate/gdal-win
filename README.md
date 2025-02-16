@@ -16,7 +16,7 @@ Ensure you have Rust installed. You can then add `gdal-win` to your Rust project
 
 ```toml
 [package]
-name = "gdal-win example"
+name = "gdal-win-example"
 version = "0.1.0"
 edition = "2021"
 
